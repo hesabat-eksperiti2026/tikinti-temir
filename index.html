@@ -3,404 +3,356 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>İnşaat və Təmir Smetası Kalkulyatoru</title>
+    <title>TapZap.az - Ehtiyat Hissəsi Axtarışı</title>
     <style>
         :root {
-            --primary-color: #2b5876;
-            --secondary-color: #4e4376;
-            --accent-color: #e67e22;
-            --bg-color: #f4f7f6;
+            --primary: #1e293b;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --bg: #f8fafc;
             --card-bg: #ffffff;
-            --text-color: #333333;
-            --border-color: #e0e0e0;
+            --border: #e2e8f0;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            padding: 30px 15px;
-            line-height: 1.6;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-            overflow: hidden;
+            background-color: var(--bg);
+            color: #334155;
+            padding: 20px 15px;
         }
 
         .header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 25px;
+            max-width: 650px;
+            margin: 0 auto 20px auto;
             text-align: center;
         }
 
-        .header h1 {
-            font-size: 24px;
-            margin-bottom: 8px;
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -0.5px;
         }
 
-        .header p {
+        .logo span {
+            color: var(--accent);
+        }
+
+        .slogan {
             font-size: 14px;
-            opacity: 0.9;
+            color: #64748b;
+            margin-top: 4px;
         }
 
-        .form-body {
-            padding: 25px;
+        .container {
+            max-width: 650px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            padding: 24px;
+            border: 1px solid var(--border);
         }
 
-        .section-title {
+        .form-title {
             font-size: 16px;
-            font-weight: 600;
-            color: var(--primary-color);
-            border-left: 4px solid var(--accent-color);
-            padding-left: 10px;
-            margin: 20px 0 15px 0;
-        }
-
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 10px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 14px;
         }
 
         label {
             display: block;
             font-size: 13px;
             font-weight: 600;
-            margin-bottom: 5px;
-            color: #555;
+            margin-bottom: 6px;
+            color: #475569;
         }
 
-        input[type="number"], select {
+        input[type="text"], select {
             width: 100%;
-            padding: 10px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
             font-size: 14px;
+            outline: none;
             transition: border-color 0.2s;
         }
 
-        input[type="number"]:focus, select:focus {
-            outline: none;
-            border-color: var(--primary-color);
+        input[type="text"]:focus, select:focus {
+            border-color: var(--accent);
         }
 
-        .material-options {
-            background-color: #f8fafc;
-            border: 1px dashed #cbd5e1;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 10px;
-        }
-
-        .btn-calculate {
+        .btn-submit {
             width: 100%;
-            background: var(--accent-color);
-            color: white;
+            background: var(--accent);
+            color: #ffffff;
             border: none;
             padding: 14px;
             font-size: 16px;
-            font-weight: bold;
-            border-radius: 6px;
+            font-weight: 700;
+            border-radius: 8px;
             cursor: pointer;
-            margin-top: 20px;
-            transition: background 0.3s;
+            margin-top: 10px;
+            transition: opacity 0.2s;
         }
 
-        .btn-calculate:hover {
-            background: #d35400;
+        .btn-submit:hover {
+            opacity: 0.9;
         }
 
-        .result-card {
+        /* Qiymət Təklifləri Paneli */
+        .live-offers {
             margin-top: 30px;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 20px;
             display: none;
         }
 
-        .result-card.active {
+        .live-offers.active {
             display: block;
         }
 
-        .result-header {
-            font-size: 18px;
-            font-weight: bold;
-            color: var(--primary-color);
-            margin-bottom: 15px;
-            border-bottom: 2px solid #e2e8f0;
-            padding-bottom: 8px;
+        .status-bar {
+            background: #e0f2fe;
+            border: 1px solid #bae6fd;
+            padding: 12px 16px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
         }
 
-        .result-grid {
-            width: 100%;
-            border-collapse: collapse;
+        .status-text {
+            font-size: 13px;
+            color: #0369a1;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .result-grid td {
-            padding: 8px 0;
-            font-size: 14px;
-            border-bottom: 1px solid #edf2f7;
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7);
+            animation: pulse 1.5s infinite;
         }
 
-        .result-grid td:last-child {
-            text-align: right;
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
+
+        .offer-card {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            animation: slideDown 0.4s ease-out;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .store-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .store-name {
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--primary);
+        }
+
+        .rating {
+            font-size: 12px;
+            color: #d97706;
+            background: #fef3c7;
+            padding: 2px 6px;
+            border-radius: 4px;
             font-weight: 600;
         }
 
-        .total-row td {
-            font-size: 16px !important;
-            font-weight: bold !important;
-            color: var(--accent-color);
-            border-bottom: none !important;
-            padding-top: 15px !important;
+        .offer-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed var(--border);
         }
 
-        @media (max-width: 600px) {
-            .grid-2 {
-                grid-template-columns: 1fr;
-            }
+        .tag {
+            display: inline-block;
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            margin-right: 6px;
+        }
+
+        .tag-original { background: #dcfce7; color: #15803d; }
+        .tag-aftermarket { background: #f1f5f9; color: #475569; }
+
+        .price {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .delivery-info {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .btn-contact {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
         }
     </style>
 </head>
 <body>
 
+<div class="header">
+    <div class="logo">TapZap<span>.az</span></div>
+    <div class="slogan">Zəng etmə, vaxt itirmə! VIN kodu yaz, Bakı mağazaları qiymət yazsın.</div>
+</div>
+
 <div class="container">
-    <div class="header">
-        <h1>Təmir və İnşaat Smetası Kalkulyatoru</h1>
-        <p>Otaq ölçüləri, pəncərə/qapı çıxıntıları və usta xərclərinin dəqiq hesablanması</p>
-    </div>
-
-    <div class="form-body">
-        <!-- Addım 1: Otaq Ölçüləri -->
-        <div class="section-title">1. Otağın Ölçüləri</div>
-        <div class="grid-2">
-            <div class="form-group">
-                <label for="length">Otağın Uzunluğu (metr):</label>
-                <input type="number" id="length" value="5" step="0.1" min="0">
-            </div>
-            <div class="form-group">
-                <label for="width">Otağın Eni (metr):</label>
-                <input type="number" id="width" value="4" step="0.1" min="0">
-            </div>
-        </div>
-        <div class="grid-2">
-            <div class="form-group">
-                <label for="height">Divarın Hündürlüyü (metr):</label>
-                <input type="number" id="height" value="2.8" step="0.1" min="0">
-            </div>
-            <div></div>
-        </div>
-
-        <!-- Addım 2: Çıxılacaq Sahələr -->
-        <div class="section-title">2. Qapı və Pəncərələr (Divar Sahəsindən Çıxılır)</div>
-        <div class="grid-2">
-            <div class="form-group">
-                <label for="doors">Qapı Sayı (0.9m x 2.0m standart):</label>
-                <input type="number" id="doors" value="1" min="0">
-            </div>
-            <div class="form-group">
-                <label for="windows">Pəncərə Sayı (1.4m x 1.5m standart):</label>
-                <input type="number" id="windows" value="1" min="0">
-            </div>
-        </div>
-
-        <!-- Addım 3: Material və Xidmət Növü -->
-        <div class="section-title">3. Təmir Növü və Qiymətləndirmə</div>
+    <div class="form-title">🚗 Ehtiyat Hissəsi Sorğusu Yarat</div>
+    
+    <form id="searchForm" onsubmit="submitRequest(event)">
         <div class="form-group">
-            <label for="materialType">İşin Növünü Seçin:</label>
-            <select id="materialType" onchange="toggleMaterialInputs()">
-                <option value="oboy">Divar Oboyu</option>
-                <option value="kafel">Döşəmə Kafeli / Metlax</option>
-                <option value="boya">Divar Boyası</option>
+            <label for="carModel">Avtomobil Modeli və İli:</label>
+            <input type="text" id="carModel" placeholder="Məsələn: 2018 Ford Escape 1.5 L" required>
+        </div>
+
+        <div class="form-group">
+            <label for="vinCode">VIN Kod (Şassi nömrəsi):</label>
+            <input type="text" id="vinCode" placeholder="17 rəqəmli VIN kodu daxil edin" maxlength="17" required style="text-transform: uppercase;">
+        </div>
+
+        <div class="form-group">
+            <label for="partName">Axtarılan Ehtiyat Hissəsi:</label>
+            <input type="text" id="partName" placeholder="Məsələn: Alışdırma Şamları (Denso Iridium)" required>
+        </div>
+
+        <div class="form-group">
+            <label for="partCondition">Üstünlük verilən durum:</label>
+            <select id="partCondition">
+                <option value="all">Fərq etməz (Ən sərfəli təklif)</option>
+                <option value="original">Yalnız Orijinal</option>
+                <option value="aftermarket">Firma / AFT (Analoq)</option>
+                <option value="used">İşlənmiş (Ölüxana)</option>
             </select>
         </div>
 
-        <div class="material-options" id="materialOptions">
-            <!-- JavaScript ilə dinamik olaraq tənzimlənir -->
+        <button type="submit" class="btn-submit" id="btnSubmit">Sorğunu Bakı Mağazalarına Göndər</button>
+    </form>
+
+    <!-- CANLI CANLI GƏLƏN TƏKLİFLƏR PANELSİ -->
+    <div class="live-offers" id="liveOffers">
+        <div class="status-bar">
+            <div class="status-text">
+                <div class="pulse-dot"></div>
+                <span id="statusMessage">Sorğu göndərildi. Mağazalardan cavab gözlənilir...</span>
+            </div>
+            <strong id="offerCount" style="font-size: 13px;">0 Təklif</strong>
         </div>
 
-        <div class="grid-2" style="margin-top: 15px;">
-            <div class="form-group">
-                <label for="unitPrice">Materialın Vahid Qiyməti (AZN):</label>
-                <input type="number" id="unitPrice" value="25" step="0.5" min="0">
-                <small style="font-size:11px; color:#666;" id="unitPriceLabel">1 rulon oboyun qiyməti</small>
-            </div>
-            <div class="form-group">
-                <label for="laborPrice">Usta Haqqı (1 m² üçün AZN):</label>
-                <input type="number" id="laborPrice" value="5" step="0.5" min="0">
-            </div>
-        </div>
-
-        <button class="btn-calculate" onclick="calculateEstimate()">Smetanı Hesabla</button>
-
-        <!-- Nəticə Paneli -->
-        <div class="result-card" id="resultCard">
-            <div class="result-header">Hesablama Nəticələri</div>
-            <table class="result-grid">
-                <tr>
-                    <td>Döşəmə Sahəsi:</td>
-                    <td id="resFloorArea">0 m²</td>
-                </tr>
-                <tr>
-                    <td>Ümumi Divar Sahəsi:</td>
-                    <td id="resWallArea">0 m²</td>
-                </tr>
-                <tr>
-                    <td>Çıxılan Qapı/Pəncərə Sahəsi:</td>
-                    <td id="resSubArea">0 m²</td>
-                </tr>
-                <tr>
-                    <td>Net Divar Sahəsi (İşləniləcək):</td>
-                    <td id="resNetWallArea">0 m²</td>
-                </tr>
-                <tr>
-                    <td>Tələb Olunan Material Miqdarı:</td>
-                    <td id="resMaterialQty">0</td>
-                </tr>
-                <tr>
-                    <td>Material Xərci:</td>
-                    <td id="resMaterialCost">0 AZN</td>
-                </tr>
-                <tr>
-                    <td>Usta / İşçilik Xərci:</td>
-                    <td id="resLaborCost">0 AZN</td>
-                </tr>
-                <tr class="total-row">
-                    <td>Yekun Təxmini Xərc:</td>
-                    <td id="resTotalCost">0 AZN</td>
-                </tr>
-            </table>
+        <div id="offersContainer">
+            <!-- Dynamic Offers Will Appear Here -->
         </div>
     </div>
 </div>
 
 <script>
-    function toggleMaterialInputs() {
-        const type = document.getElementById('materialType').value;
-        const optionsDiv = document.getElementById('materialOptions');
-        const unitLabel = document.getElementById('unitPriceLabel');
+    let offerCounter = 0;
 
-        if (type === 'oboy') {
-            optionsDiv.innerHTML = `
-                <div class="form-group" style="margin-bottom:0;">
-                    <label for="rollType">Oboy Rulon Ölçüsü:</label>
-                    <select id="rollType">
-                        <option value="5.3">Standart (0.53m x 10m = 5.3 m²)</option>
-                        <option value="10.6">Enli (1.06m x 10m = 10.6 m²)</option>
-                    </select>
-                </div>
-            `;
-            unitLabel.innerText = "1 rulon oboyun qiyməti";
-        } else if (type === 'kafel') {
-            optionsDiv.innerHTML = `
-                <div class="grid-2" style="margin-bottom:0;">
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label for="tilePack">1 Paçkadakı Sahə (m²):</label>
-                        <input type="number" id="tilePack" value="1.44" step="0.01">
-                    </div>
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label for="wasteMargin">İtki / Fire Payı (%):</label>
-                        <input type="number" id="wasteMargin" value="10">
-                    </div>
-                </div>
-            `;
-            unitLabel.innerText = "1 paçka kafelin qiyməti";
-        } else if (type === 'boya') {
-            optionsDiv.innerHTML = `
-                <div class="form-group" style="margin-bottom:0;">
-                    <label for="paintCoats">Qat Sayı:</label>
-                    <select id="paintCoats">
-                        <option value="2">2 Qat (Standart)</option>
-                        <option value="1">1 Qat</option>
-                    </select>
-                </div>
-            `;
-            unitLabel.innerText = "1 litr boyanın qiyməti";
-        }
+    function submitRequest(event) {
+        event.preventDefault();
+
+        const carModel = document.getElementById('carModel').value;
+        const partName = document.getElementById('partName').value;
+
+        // Düyməni deaktiv edirik
+        document.getElementById('btnSubmit').disabled = true;
+        document.getElementById('btnSubmit').innerText = 'Sorğu Aktivdir...';
+        document.getElementById('btnSubmit').style.opacity = '0.6';
+
+        // Təkliflər panelini göstəririk
+        const liveOffers = document.getElementById('liveOffers');
+        liveOffers.classList.add('active');
+        document.getElementById('offersContainer').innerHTML = '';
+        offerCounter = 0;
+
+        // Mağaza cavablarını simulyasiya edirik (Real sistemdə WebSockets/Supabase Realtime olacaq)
+        setTimeout(() => addSimulatedOffer("Məmmədov Auto Parts", 4.9, 32, "Orijinal (Denso)", "20 dəqiqəyə usta boksa çatdırılma", "tag-original"), 3000);
+        setTimeout(() => addSimulatedOffer("Baku Auto Store", 4.7, 24, "AFT (NGK Analoq)", "Gəlib götürmək və ya Kuryer", "tag-aftermarket"), 6000);
+        setTimeout(() => addSimulatedOffer("Ford Ehtiyat Hissələri (Babək pr.)", 4.8, 28, "Orijinal (Motorcraft)", "30 dəqiqəyə çatdırılma", "tag-original"), 10000);
     }
 
-    function calculateEstimate() {
-        const length = parseFloat(document.getElementById('length').value) || 0;
-        const width = parseFloat(document.getElementById('width').value) || 0;
-        const height = parseFloat(document.getElementById('height').value) || 0;
-        const doors = parseInt(document.getElementById('doors').value) || 0;
-        const windows = parseInt(document.getElementById('windows').value) || 0;
-        
-        const unitPrice = parseFloat(document.getElementById('unitPrice').value) || 0;
-        const laborPrice = parseFloat(document.getElementById('laborPrice').value) || 0;
-        const type = document.getElementById('materialType').value;
+    function addSimulatedOffer(storeName, rating, price, brand, delivery, tagClass) {
+        offerCounter++;
+        document.getElementById('offerCount').innerText = `${offerCounter} Təklif`;
+        document.getElementById('statusMessage').innerText = `Canlı təkliflər daxil olur...`;
 
-        // Sahə hesablanmaları
-        const floorArea = length * width;
-        const grossWallArea = (length + width) * 2 * height;
-        const doorArea = doors * (0.9 * 2.0); // 1.8 m²
-        const windowArea = windows * (1.4 * 1.5); // 2.1 m²
-        const totalSubArea = doorArea + windowArea;
-        const netWallArea = Math.max(0, grossWallArea - totalSubArea);
+        const offersContainer = document.getElementById('offersContainer');
+        const card = document.createElement('div');
+        card.className = 'offer-card';
 
-        let materialQtyText = "";
-        let materialCost = 0;
-        let laborCost = 0;
+        card.innerHTML = `
+            <div class="store-header">
+                <span class="store-name">🏬 ${storeName}</span>
+                <span class="rating">★ ${rating}</span>
+            </div>
+            <div>
+                <span class="tag ${tagClass}">${brand}</span>
+            </div>
+            <div class="delivery-info">🚚 ${delivery}</div>
+            <div class="offer-details">
+                <div>
+                    <span style="font-size:11px; color:#64748b;">Qiymət:</span>
+                    <div class="price">${price} AZN</div>
+                </div>
+                <a href="https://wa.me/994500000000" target="_blank" class="btn-contact">Sifariş Et (WhatsApp)</a>
+            </div>
+        `;
 
-        if (type === 'oboy') {
-            const rollCoverage = parseFloat(document.getElementById('rollType').value) || 5.3;
-            // %10 fire payı əlavə edilir
-            const rollsNeeded = Math.ceil((netWallArea / rollCoverage) * 1.1);
-            materialQtyText = `${rollsNeeded} Rulon`;
-            materialCost = rollsNeeded * unitPrice;
-            laborCost = netWallArea * laborPrice;
-        } else if (type === 'kafel') {
-            const packCoverage = parseFloat(document.getElementById('tilePack').value) || 1.44;
-            const waste = parseFloat(document.getElementById('wasteMargin').value) || 10;
-            const totalAreaNeeded = floorArea * (1 + waste / 100);
-            const packsNeeded = Math.ceil(totalAreaNeeded / packCoverage);
-            materialQtyText = `${packsNeeded} Paçka (${totalAreaNeeded.toFixed(1)} m² kafel)`;
-            materialCost = packsNeeded * unitPrice;
-            laborCost = floorArea * laborPrice;
-        } else if (type === 'boya') {
-            const coats = parseInt(document.getElementById('paintCoats').value) || 2;
-            // 1 litr boya 1 qatda ortalama 10 m² örtür
-            const litersNeeded = Math.ceil((netWallArea * coats) / 10);
-            materialQtyText = `${litersNeeded} Litr (${coats} qat)`;
-            materialCost = litersNeeded * unitPrice;
-            laborCost = netWallArea * laborPrice;
-        }
-
-        const totalCost = materialCost + laborCost;
-
-        // Nəticələri vizual olaraq yeniləyirik
-        document.getElementById('resFloorArea').innerText = `${floorArea.toFixed(2)} m²`;
-        document.getElementById('resWallArea').innerText = `${grossWallArea.toFixed(2)} m²`;
-        document.getElementById('resSubArea').innerText = `${totalSubArea.toFixed(2)} m²`;
-        document.getElementById('resNetWallArea').innerText = `${netWallArea.toFixed(2)} m²`;
-        document.getElementById('resMaterialQty').innerText = materialQtyText;
-        document.getElementById('resMaterialCost').innerText = `${materialCost.toFixed(2)} AZN`;
-        document.getElementById('resLaborCost').innerText = `${laborCost.toFixed(2)} AZN`;
-        document.getElementById('resTotalCost').innerText = `${totalCost.toFixed(2)} AZN`;
-
-        document.getElementById('resultCard').classList.add('active');
+        offersContainer.prepend(card);
     }
-
-    // Səhifə ilk açılanda material xanalarını yeniləyirik
-    window.onload = toggleMaterialInputs;
 </script>
 
 </body>
