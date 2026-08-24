@@ -3,60 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TapZap.az - Ehtiyat Hissəsi Axtarışı</title>
+    <title>TapZap.az - Ehtiyat Hissəsi Sorğusu</title>
     <style>
         :root {
             --primary: #1e293b;
             --accent: #f59e0b;
-            --success: #10b981;
             --bg: #f8fafc;
             --card-bg: #ffffff;
-            --border: #e2e8f0;
+            --border: #cbd5e1;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-family: 'Segoe UI', system-ui, sans-serif;
         }
 
         body {
             background-color: var(--bg);
             color: #334155;
-            padding: 20px 15px;
+            padding: 20px 12px;
         }
 
         .header {
-            max-width: 650px;
+            max-width: 600px;
             margin: 0 auto 20px auto;
             text-align: center;
         }
 
         .logo {
-            font-size: 28px;
+            font-size: 32px;
             font-weight: 800;
             color: var(--primary);
-            letter-spacing: -0.5px;
         }
 
-        .logo span {
-            color: var(--accent);
-        }
+        .logo span { color: var(--accent); }
 
         .slogan {
-            font-size: 14px;
+            font-size: 13px;
             color: #64748b;
             margin-top: 4px;
         }
 
         .container {
-            max-width: 650px;
+            max-width: 600px;
             margin: 0 auto;
             background: var(--card-bg);
             border-radius: 16px;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-            padding: 24px;
+            padding: 20px;
             border: 1px solid var(--border);
         }
 
@@ -65,9 +61,14 @@
             font-weight: 700;
             margin-bottom: 16px;
             color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            border-bottom: 2px solid var(--bg);
+            padding-bottom: 8px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
         }
 
         .form-group {
@@ -76,24 +77,32 @@
 
         label {
             display: block;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 5px;
             color: #475569;
+            text-transform: uppercase;
         }
 
-        input[type="text"], select {
+        input[type="text"], select, input[type="file"] {
             width: 100%;
-            padding: 12px;
+            padding: 11px;
             border: 1px solid var(--border);
             border-radius: 8px;
             font-size: 14px;
+            background-color: #fff;
             outline: none;
-            transition: border-color 0.2s;
         }
 
         input[type="text"]:focus, select:focus {
             border-color: var(--accent);
+        }
+
+        .photo-upload-box {
+            background: #f1f5f9;
+            border: 1px dashed #94a3b8;
+            padding: 12px;
+            border-radius: 8px;
         }
 
         .btn-submit {
@@ -101,145 +110,16 @@
             background: var(--accent);
             color: #ffffff;
             border: none;
-            padding: 14px;
+            padding: 15px;
             font-size: 16px;
             font-weight: 700;
             border-radius: 8px;
             cursor: pointer;
             margin-top: 10px;
-            transition: opacity 0.2s;
         }
 
-        .btn-submit:hover {
-            opacity: 0.9;
-        }
-
-        /* Qiymət Təklifləri Paneli */
-        .live-offers {
-            margin-top: 30px;
-            display: none;
-        }
-
-        .live-offers.active {
-            display: block;
-        }
-
-        .status-bar {
-            background: #e0f2fe;
-            border: 1px solid #bae6fd;
-            padding: 12px 16px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        .status-text {
-            font-size: 13px;
-            color: #0369a1;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .pulse-dot {
-            width: 8px;
-            height: 8px;
-            background-color: var(--accent);
-            border-radius: 50%;
-            box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7);
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
-        }
-
-        .offer-card {
-            background: #ffffff;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 12px;
-            animation: slideDown 0.4s ease-out;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
-        }
-
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .store-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .store-name {
-            font-weight: 700;
-            font-size: 15px;
-            color: var(--primary);
-        }
-
-        .rating {
-            font-size: 12px;
-            color: #d97706;
-            background: #fef3c7;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-weight: 600;
-        }
-
-        .offer-details {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px dashed var(--border);
-        }
-
-        .tag {
-            display: inline-block;
-            font-size: 11px;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-weight: 600;
-            margin-right: 6px;
-        }
-
-        .tag-original { background: #dcfce7; color: #15803d; }
-        .tag-aftermarket { background: #f1f5f9; color: #475569; }
-
-        .price {
-            font-size: 20px;
-            font-weight: 800;
-            color: var(--primary);
-        }
-
-        .delivery-info {
-            font-size: 12px;
-            color: #64748b;
-            margin-top: 4px;
-        }
-
-        .btn-contact {
-            background: var(--success);
-            color: white;
-            border: none;
-            padding: 8px 14px;
-            font-size: 13px;
-            font-weight: 600;
-            border-radius: 6px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
+        @media (max-width: 480px) {
+            .grid-2 { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -247,111 +127,212 @@
 
 <div class="header">
     <div class="logo">TapZap<span>.az</span></div>
-    <div class="slogan">Zəng etmə, vaxt itirmə! VIN kodu yaz, Bakı mağazaları qiymət yazsın.</div>
+    <div class="slogan">Zəng etmə, vaxt itirmə! 1 tıkla Bakı mağazaları qiymət yazsın.</div>
 </div>
 
 <div class="container">
-    <div class="form-title">🚗 Ehtiyat Hissəsi Sorğusu Yarat</div>
+    <div class="form-title">🚗 AVTOMOBİL VƏ DETAL MƏLUMATLARI</div>
     
-    <form id="searchForm" onsubmit="submitRequest(event)">
-        <div class="form-group">
-            <label for="carModel">Avtomobil Modeli və İli:</label>
-            <input type="text" id="carModel" placeholder="Məsələn: 2018 Ford Escape 1.5 L" required>
+    <form id="partRequestForm" onsubmit="handleFormSubmit(event)">
+        
+        <!-- Marka və Model -->
+        <div class="grid-2">
+            <div class="form-group">
+                <label for="brand">Marka *</label>
+                <select id="brand" onchange="updateModels()" required>
+                    <option value="">Seçin...</option>
+                    <option value="Mercedes-Benz">Mercedes-Benz</option>
+                    <option value="Ford">Ford</option>
+                    <option value="Hyundai">Hyundai</option>
+                    <option value="Kia">Kia</option>
+                    <option value="Toyota">Toyota</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="model">Model *</label>
+                <select id="model" onchange="updateYears()" required disabled>
+                    <option value="">Əvvəlcə markanı seçin</option>
+                </select>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label for="vinCode">VIN Kod (Şassi nömrəsi):</label>
-            <input type="text" id="vinCode" placeholder="17 rəqəmli VIN kodu daxil edin" maxlength="17" required style="text-transform: uppercase;">
+        <!-- İl və Mühərrik -->
+        <div class="grid-2">
+            <div class="form-group">
+                <label for="year">İl *</label>
+                <select id="year" onchange="updateEngines()" required disabled>
+                    <option value="">Əvvəlcə modeli seçin</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="engine">Mühərrik Həcmi *</label>
+                <select id="engine" required disabled>
+                    <option value="">Əvvəlcə ili seçin</option>
+                </select>
+            </div>
         </div>
 
+        <!-- VIN Kod -->
         <div class="form-group">
-            <label for="partName">Axtarılan Ehtiyat Hissəsi:</label>
-            <input type="text" id="partName" placeholder="Məsələn: Alışdırma Şamları (Denso Iridium)" required>
+            <label for="vin">VIN Kod (17 Simvol - Texpasportdan)</label>
+            <input type="text" id="vin" placeholder="Məs: 1FA6P8CF0J..." maxlength="17" style="text-transform: uppercase;">
         </div>
 
+        <!-- Detal Seçimi -->
         <div class="form-group">
-            <label for="partCondition">Üstünlük verilən durum:</label>
-            <select id="partCondition">
-                <option value="all">Fərq etməz (Ən sərfəli təklif)</option>
-                <option value="original">Yalnız Orijinal</option>
-                <option value="aftermarket">Firma / AFT (Analoq)</option>
-                <option value="used">İşlənmiş (Ölüxana)</option>
+            <label for="partCategory">Ehtiyat Hissəsi *</label>
+            <select id="partCategory" onchange="toggleCustomPartInput()" required>
+                <option value="">Axtarılan detalı seçin...</option>
+                <option value="Alışdırma şamları (Sveça)">Alışdırma şamları (Sveça)</option>
+                <option value="Əyləc bəndləri (Apornular/Nakladka)">Əyləc bəndləri (Nakladka)</option>
+                <option value="EVAP Purge Klapanı">EVAP Purge Klapanı</option>
+                <option value="Yağ / Hava / Salun Filtri">Yağ / Hava / Salun Filtri</option>
+                <option value="Akkumulyator">Akkumulyator</option>
+                <option value="Amortizatorlar">Amortizatorlar</option>
+                <option value="Qabaq / Arxa Bufer">Qabaq / Arxa Bufer</option>
+                <option value="custom">-- Siyahıda Yoxdur (Əllə Yaz) --</option>
             </select>
         </div>
 
-        <button type="submit" class="btn-submit" id="btnSubmit">Sorğunu Bakı Mağazalarına Göndər</button>
-    </form>
+        <!-- Digər Detal (Gizli Xana) -->
+        <div class="form-group" id="customPartGroup" style="display: none;">
+            <label for="customPart">Detalın Adını Dəqiq Yazın *</label>
+            <input type="text" id="customPart" placeholder="Məsələn: Sağ ön duman əleyhinə fənər çərçivəsi">
+        </div>
 
-    <!-- CANLI CANLI GƏLƏN TƏKLİFLƏR PANELSİ -->
-    <div class="live-offers" id="liveOffers">
-        <div class="status-bar">
-            <div class="status-text">
-                <div class="pulse-dot"></div>
-                <span id="statusMessage">Sorğu göndərildi. Mağazalardan cavab gözlənilir...</span>
+        <!-- Detalın Durumu -->
+        <div class="form-group">
+            <label for="condition">Üstünlük verilən durum</label>
+            <select id="condition">
+                <option value="ALL">Fərq etməz (Ən sərfəli təklif)</option>
+                <option value="OEM">Yalnız Orijinal</option>
+                <option value="AFT">Firma / Analoq (AFT)</option>
+                <option value="USED">İşlənmiş (Ölüxana)</option>
+            </select>
+        </div>
+
+        <!-- Şəkil Yükləmə (Maksimum 2 Ədəd) -->
+        <div class="form-group">
+            <label>Şəkil Əlavə Et (Maksimum 2 ədəd - Detal və ya Texpasport)</label>
+            <div class="photo-upload-box grid-2">
+                <div>
+                    <span style="font-size:11px; color:#64748b;">Şəkil 1:</span>
+                    <input type="file" id="photo1" accept="image/*">
+                </div>
+                <div>
+                    <span style="font-size:11px; color:#64748b;">Şəkil 2:</span>
+                    <input type="file" id="photo2" accept="image/*">
+                </div>
             </div>
-            <strong id="offerCount" style="font-size: 13px;">0 Təklif</strong>
         </div>
 
-        <div id="offersContainer">
-            <!-- Dynamic Offers Will Appear Here -->
-        </div>
-    </div>
+        <button type="submit" class="btn-submit">Sorğunu Göndər</button>
+    </form>
 </div>
 
 <script>
-    let offerCounter = 0;
+    // Marka, Model, İl və Mühərrik Baza Məlumatları
+    const autoData = {
+        "Mercedes-Benz": {
+            "C-Class (C300, C250)": { years: [2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020], engines: ["1.8 L", "2.0 L Turbo", "3.5 L V6"] },
+            "E-Class (E200, E300, E350)": { years: [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018], engines: ["2.0 L Turbo", "3.0 L", "3.5 L V6"] }
+        },
+        "Ford": {
+            "Escape": { years: [2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020], engines: ["1.5 L EcoBoost", "1.6 L EcoBoost", "2.0 L EcoBoost", "2.5 L Atmosfer"] },
+            "Fusion": { years: [2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020], engines: ["1.5 L EcoBoost", "2.0 L EcoBoost", "2.5 L Atmosfer", "2.0 L Hybrid"] }
+        },
+        "Hyundai": {
+            "Elantra": { years: [2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020], engines: ["1.6 L", "1.8 L", "2.0 L"] },
+            "Santa Fe": { years: [2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020], engines: ["2.0 L Turbo", "2.2 L Diesel", "2.4 L"] }
+        },
+        "Kia": {
+            "Optima": { years: [2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020], engines: ["1.6 L Turbo", "2.0 L", "2.4 L"] }
+        },
+        "Toyota": {
+            "Camry": { years: [2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020], engines: ["2.5 L Atmosfer", "2.5 L Hybrid", "3.5 L V6"] },
+            "Corolla": { years: [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019], engines: ["1.4 L Diesel", "1.6 L", "1.8 L"] }
+        }
+    };
 
-    function submitRequest(event) {
-        event.preventDefault();
+    function updateModels() {
+        const brand = document.getElementById('brand').value;
+        const modelSelect = document.getElementById('model');
+        const yearSelect = document.getElementById('year');
+        const engineSelect = document.getElementById('engine');
 
-        const carModel = document.getElementById('carModel').value;
-        const partName = document.getElementById('partName').value;
+        modelSelect.innerHTML = '<option value="">Model seçin...</option>';
+        yearSelect.innerHTML = '<option value="">Əvvəlcə modeli seçin</option>';
+        engineSelect.innerHTML = '<option value="">Əvvəlcə ili seçin</option>';
+        
+        yearSelect.disabled = true;
+        engineSelect.disabled = true;
 
-        // Düyməni deaktiv edirik
-        document.getElementById('btnSubmit').disabled = true;
-        document.getElementById('btnSubmit').innerText = 'Sorğu Aktivdir...';
-        document.getElementById('btnSubmit').style.opacity = '0.6';
-
-        // Təkliflər panelini göstəririk
-        const liveOffers = document.getElementById('liveOffers');
-        liveOffers.classList.add('active');
-        document.getElementById('offersContainer').innerHTML = '';
-        offerCounter = 0;
-
-        // Mağaza cavablarını simulyasiya edirik (Real sistemdə WebSockets/Supabase Realtime olacaq)
-        setTimeout(() => addSimulatedOffer("Məmmədov Auto Parts", 4.9, 32, "Orijinal (Denso)", "20 dəqiqəyə usta boksa çatdırılma", "tag-original"), 3000);
-        setTimeout(() => addSimulatedOffer("Baku Auto Store", 4.7, 24, "AFT (NGK Analoq)", "Gəlib götürmək və ya Kuryer", "tag-aftermarket"), 6000);
-        setTimeout(() => addSimulatedOffer("Ford Ehtiyat Hissələri (Babək pr.)", 4.8, 28, "Orijinal (Motorcraft)", "30 dəqiqəyə çatdırılma", "tag-original"), 10000);
+        if (brand && autoData[brand]) {
+            modelSelect.disabled = false;
+            Object.keys(autoData[brand]).forEach(model => {
+                modelSelect.innerHTML += `<option value="${model}">${model}</option>`;
+            });
+        } else {
+            modelSelect.disabled = true;
+        }
     }
 
-    function addSimulatedOffer(storeName, rating, price, brand, delivery, tagClass) {
-        offerCounter++;
-        document.getElementById('offerCount').innerText = `${offerCounter} Təklif`;
-        document.getElementById('statusMessage').innerText = `Canlı təkliflər daxil olur...`;
+    function updateYears() {
+        const brand = document.getElementById('brand').value;
+        const model = document.getElementById('model').value;
+        const yearSelect = document.getElementById('year');
+        const engineSelect = document.getElementById('engine');
 
-        const offersContainer = document.getElementById('offersContainer');
-        const card = document.createElement('div');
-        card.className = 'offer-card';
+        yearSelect.innerHTML = '<option value="">İl seçin...</option>';
+        engineSelect.innerHTML = '<option value="">Əvvəlcə ili seçin</option>';
+        engineSelect.disabled = true;
 
-        card.innerHTML = `
-            <div class="store-header">
-                <span class="store-name">🏬 ${storeName}</span>
-                <span class="rating">★ ${rating}</span>
-            </div>
-            <div>
-                <span class="tag ${tagClass}">${brand}</span>
-            </div>
-            <div class="delivery-info">🚚 ${delivery}</div>
-            <div class="offer-details">
-                <div>
-                    <span style="font-size:11px; color:#64748b;">Qiymət:</span>
-                    <div class="price">${price} AZN</div>
-                </div>
-                <a href="https://wa.me/994500000000" target="_blank" class="btn-contact">Sifariş Et (WhatsApp)</a>
-            </div>
-        `;
+        if (brand && model && autoData[brand][model]) {
+            yearSelect.disabled = false;
+            autoData[brand][model].years.reverse().forEach(year => {
+                yearSelect.innerHTML += `<option value="${year}">${year}</option>`;
+            });
+        } else {
+            yearSelect.disabled = true;
+        }
+    }
 
-        offersContainer.prepend(card);
+    function updateEngines() {
+        const brand = document.getElementById('brand').value;
+        const model = document.getElementById('model').value;
+        const engineSelect = document.getElementById('engine');
+
+        engineSelect.innerHTML = '<option value="">Mühərrik həcmi seçin...</option>';
+
+        if (brand && model && autoData[brand][model]) {
+            engineSelect.disabled = false;
+            autoData[brand][model].engines.forEach(engine => {
+                engineSelect.innerHTML += `<option value="${engine}">${engine}</option>`;
+            });
+        } else {
+            engineSelect.disabled = true;
+        }
+    }
+
+    function toggleCustomPartInput() {
+        const partCategory = document.getElementById('partCategory').value;
+        const customPartGroup = document.getElementById('customPartGroup');
+        const customPartInput = document.getElementById('customPart');
+
+        if (partCategory === 'custom') {
+            customPartGroup.style.display = 'block';
+            customPartInput.required = true;
+        } else {
+            customPartGroup.style.display = 'none';
+            customPartInput.required = false;
+        }
+    }
+
+    function handleFormSubmit(event) {
+        event.preventDefault();
+        alert('Sorğunuz uğurla yaradıldı! Telegram üzərindən uyğun mağazalara göndərilir...');
     }
 </script>
 
