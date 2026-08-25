@@ -3,138 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TapZap.az - Ehtiyat Hissəsi Sorğusu</title>
+    <title>AvtoOnline.az - Sorğu Formu</title>
     <style>
         :root {
-            --primary: #1e293b;
+            --primary: #0f172a;
             --accent: #f59e0b;
             --bg: #f8fafc;
             --card-bg: #ffffff;
             --border: #cbd5e1;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg); color: #334155; padding: 20px 12px; }
 
-        body {
-            background-color: var(--bg);
-            color: #334155;
-            padding: 20px 12px;
-        }
-
-        .header {
-            max-width: 600px;
-            margin: 0 auto 20px auto;
-            text-align: center;
-        }
-
-        .logo {
-            font-size: 32px;
-            font-weight: 800;
-            color: var(--primary);
-        }
-
+        .header { max-width: 600px; margin: 0 auto 20px auto; text-align: center; }
+        .logo { font-size: 30px; font-weight: 900; color: var(--primary); }
         .logo span { color: var(--accent); }
-
-        .slogan {
-            font-size: 13px;
-            color: #64748b;
-            margin-top: 4px;
-        }
+        .slogan { font-size: 13px; color: #64748b; margin-top: 4px; }
 
         .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: var(--card-bg);
-            border-radius: 16px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-            padding: 20px;
-            border: 1px solid var(--border);
+            max-width: 600px; margin: 0 auto; background: var(--card-bg);
+            border-radius: 16px; padding: 20px; border: 1px solid var(--border);
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
         }
 
-        .form-title {
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 16px;
-            color: var(--primary);
-            border-bottom: 2px solid var(--bg);
-            padding-bottom: 8px;
-        }
-
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .form-group {
-            margin-bottom: 14px;
-        }
-
-        label {
-            display: block;
-            font-size: 12px;
-            font-weight: 700;
-            margin-bottom: 5px;
-            color: #475569;
-            text-transform: uppercase;
-        }
-
+        .form-title { font-size: 15px; font-weight: 700; margin-bottom: 16px; color: var(--primary); border-bottom: 2px solid var(--bg); padding-bottom: 8px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .form-group { margin-bottom: 14px; }
+        label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 5px; color: #475569; text-transform: uppercase; }
+        
         input[type="text"], select, input[type="file"] {
-            width: 100%;
-            padding: 11px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 14px;
-            background-color: #fff;
-            outline: none;
+            width: 100%; padding: 11px; border: 1px solid var(--border);
+            border-radius: 8px; font-size: 14px; background-color: #fff; outline: none;
         }
 
-        input[type="text"]:focus, select:focus {
-            border-color: var(--accent);
-        }
-
-        .photo-upload-box {
-            background: #f1f5f9;
-            border: 1px dashed #94a3b8;
-            padding: 12px;
-            border-radius: 8px;
-        }
-
-        .btn-submit {
-            width: 100%;
-            background: var(--accent);
-            color: #ffffff;
-            border: none;
-            padding: 15px;
-            font-size: 16px;
-            font-weight: 700;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        @media (max-width: 480px) {
-            .grid-2 { grid-template-columns: 1fr; }
-        }
+        .photo-box { background: #f1f5f9; border: 1px dashed #94a3b8; padding: 12px; border-radius: 8px; margin-top: 5px; }
+        .btn-submit { width: 100%; background: var(--accent); color: white; border: none; padding: 15px; font-size: 16px; font-weight: 700; border-radius: 8px; cursor: pointer; margin-top: 10px; }
+        .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <div class="logo">TapZap<span>.az</span></div>
-    <div class="slogan">Zəng etmə, vaxt itirmə! 1 tıkla Bakı mağazaları qiymət yazsın.</div>
+    <div class="logo">AVTO<span>ONLINE.AZ</span></div>
+    <div class="slogan">Canlı Ehtiyat Hissəsi Sorğu Platforması</div>
 </div>
 
 <div class="container">
-    <div class="form-title">🚗 AVTOMOBİL VƏ DETAL MƏLUMATLARI</div>
+    <div class="form-title">🚗 SORĞU FORMU</div>
     
-    <form id="partRequestForm" onsubmit="handleFormSubmit(event)">
-        
+    <form id="tgRequestForm" onsubmit="sendToTelegram(event)">
         <!-- Marka və Model -->
         <div class="grid-2">
             <div class="form-group">
@@ -148,7 +66,6 @@
                     <option value="Toyota">Toyota</option>
                 </select>
             </div>
-
             <div class="form-group">
                 <label for="model">Model *</label>
                 <select id="model" onchange="updateYears()" required disabled>
@@ -165,9 +82,8 @@
                     <option value="">Əvvəlcə modeli seçin</option>
                 </select>
             </div>
-
             <div class="form-group">
-                <label for="engine">Mühərrik Həcmi *</label>
+                <label for="engine">Mühərrik *</label>
                 <select id="engine" required disabled>
                     <option value="">Əvvəlcə ili seçin</option>
                 </select>
@@ -176,17 +92,32 @@
 
         <!-- VIN Kod -->
         <div class="form-group">
-            <label for="vin">VIN Kod (17 Simvol - Texpasportdan)</label>
+            <label for="vin">VIN Kod (Texpasportdan 17 simvol)</label>
             <input type="text" id="vin" placeholder="Məs: 1FA6P8CF0J..." maxlength="17" style="text-transform: uppercase;">
         </div>
 
-        <!-- Detal Seçimi -->
+        <!-- ŞƏKİL ƏLAVƏ ET (VIN KODUN BİRBAŞA ALTINDA) -->
+        <div class="form-group">
+            <label>Texpasport və ya Detal Şəkli (Maks 2 Ədəd)</label>
+            <div class="photo-box grid-2">
+                <div>
+                    <span style="font-size:11px; color:#64748b;">Şəkil 1 (Texpasport):</span>
+                    <input type="file" id="photo1" accept="image/*">
+                </div>
+                <div>
+                    <span style="font-size:11px; color:#64748b;">Şəkil 2 (Detal):</span>
+                    <input type="file" id="photo2" accept="image/*">
+                </div>
+            </div>
+        </div>
+
+        <!-- Ehtiyat Hissəsi -->
         <div class="form-group">
             <label for="partCategory">Ehtiyat Hissəsi *</label>
             <select id="partCategory" onchange="toggleCustomPartInput()" required>
                 <option value="">Axtarılan detalı seçin...</option>
                 <option value="Alışdırma şamları (Sveça)">Alışdırma şamları (Sveça)</option>
-                <option value="Əyləc bəndləri (Apornular/Nakladka)">Əyləc bəndləri (Nakladka)</option>
+                <option value="Əyləc bəndləri (Nakladka)">Əyləc bəndləri (Nakladka)</option>
                 <option value="EVAP Purge Klapanı">EVAP Purge Klapanı</option>
                 <option value="Yağ / Hava / Salun Filtri">Yağ / Hava / Salun Filtri</option>
                 <option value="Akkumulyator">Akkumulyator</option>
@@ -196,44 +127,30 @@
             </select>
         </div>
 
-        <!-- Digər Detal (Gizli Xana) -->
         <div class="form-group" id="customPartGroup" style="display: none;">
             <label for="customPart">Detalın Adını Dəqiq Yazın *</label>
-            <input type="text" id="customPart" placeholder="Məsələn: Sağ ön duman əleyhinə fənər çərçivəsi">
+            <input type="text" id="customPart" placeholder="Məs: Sağ ön duman işığı çərçivəsi">
         </div>
 
-        <!-- Detalın Durumu -->
         <div class="form-group">
             <label for="condition">Üstünlük verilən durum</label>
             <select id="condition">
-                <option value="ALL">Fərq etməz (Ən sərfəli təklif)</option>
-                <option value="OEM">Yalnız Orijinal</option>
-                <option value="AFT">Firma / Analoq (AFT)</option>
-                <option value="USED">İşlənmiş (Ölüxana)</option>
+                <option value="Fərq etməz">Fərq etməz (Ən sərfəli təklif)</option>
+                <option value="Yalnız Orijinal">Yalnız Orijinal</option>
+                <option value="Firma / Analoq (AFT)">Firma / Analoq (AFT)</option>
+                <option value="İşlənmiş (Ölüxana)">İşlənmiş (Ölüxana)</option>
             </select>
         </div>
 
-        <!-- Şəkil Yükləmə (Maksimum 2 Ədəd) -->
-        <div class="form-group">
-            <label>Şəkil Əlavə Et (Maksimum 2 ədəd - Detal və ya Texpasport)</label>
-            <div class="photo-upload-box grid-2">
-                <div>
-                    <span style="font-size:11px; color:#64748b;">Şəkil 1:</span>
-                    <input type="file" id="photo1" accept="image/*">
-                </div>
-                <div>
-                    <span style="font-size:11px; color:#64748b;">Şəkil 2:</span>
-                    <input type="file" id="photo2" accept="image/*">
-                </div>
-            </div>
-        </div>
-
-        <button type="submit" class="btn-submit">Sorğunu Göndər</button>
+        <button type="submit" class="btn-submit" id="submitBtn">Sorğunu Telegram-a Göndər</button>
     </form>
 </div>
 
 <script>
-    // Marka, Model, İl və Mühərrik Baza Məlumatları
+    // BOT CONFIG
+    const BOT_TOKEN = "8881898082:AAHK9-wfnxjl3y4c76w7yy8YMWrlnLGfE3I"; // BotFather-dən aldığınız token
+    const CHAT_ID = "8889694970";     // userinfobot-dan aldığınız Chat ID
+
     const autoData = {
         "Mercedes-Benz": {
             "C-Class (C300, C250)": { years: [2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020], engines: ["1.8 L", "2.0 L Turbo", "3.5 L V6"] },
@@ -244,95 +161,113 @@
             "Fusion": { years: [2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020], engines: ["1.5 L EcoBoost", "2.0 L EcoBoost", "2.5 L Atmosfer", "2.0 L Hybrid"] }
         },
         "Hyundai": {
-            "Elantra": { years: [2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020], engines: ["1.6 L", "1.8 L", "2.0 L"] },
-            "Santa Fe": { years: [2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020], engines: ["2.0 L Turbo", "2.2 L Diesel", "2.4 L"] }
+            "Elantra": { years: [2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020], engines: ["1.6 L", "1.8 L", "2.0 L"] }
         },
         "Kia": {
             "Optima": { years: [2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020], engines: ["1.6 L Turbo", "2.0 L", "2.4 L"] }
         },
         "Toyota": {
-            "Camry": { years: [2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020], engines: ["2.5 L Atmosfer", "2.5 L Hybrid", "3.5 L V6"] },
-            "Corolla": { years: [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019], engines: ["1.4 L Diesel", "1.6 L", "1.8 L"] }
+            "Camry": { years: [2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020], engines: ["2.5 L Atmosfer", "2.5 L Hybrid", "3.5 L V6"] }
         }
     };
 
     function updateModels() {
         const brand = document.getElementById('brand').value;
         const modelSelect = document.getElementById('model');
-        const yearSelect = document.getElementById('year');
-        const engineSelect = document.getElementById('engine');
-
         modelSelect.innerHTML = '<option value="">Model seçin...</option>';
-        yearSelect.innerHTML = '<option value="">Əvvəlcə modeli seçin</option>';
-        engineSelect.innerHTML = '<option value="">Əvvəlcə ili seçin</option>';
-        
-        yearSelect.disabled = true;
-        engineSelect.disabled = true;
-
         if (brand && autoData[brand]) {
             modelSelect.disabled = false;
-            Object.keys(autoData[brand]).forEach(model => {
-                modelSelect.innerHTML += `<option value="${model}">${model}</option>`;
-            });
-        } else {
-            modelSelect.disabled = true;
-        }
+            Object.keys(autoData[brand]).forEach(m => modelSelect.innerHTML += `<option value="${m}">${m}</option>`);
+        } else { modelSelect.disabled = true; }
     }
 
     function updateYears() {
         const brand = document.getElementById('brand').value;
         const model = document.getElementById('model').value;
         const yearSelect = document.getElementById('year');
-        const engineSelect = document.getElementById('engine');
-
         yearSelect.innerHTML = '<option value="">İl seçin...</option>';
-        engineSelect.innerHTML = '<option value="">Əvvəlcə ili seçin</option>';
-        engineSelect.disabled = true;
-
         if (brand && model && autoData[brand][model]) {
             yearSelect.disabled = false;
-            autoData[brand][model].years.reverse().forEach(year => {
-                yearSelect.innerHTML += `<option value="${year}">${year}</option>`;
-            });
-        } else {
-            yearSelect.disabled = true;
-        }
+            autoData[brand][model].years.reverse().forEach(y => yearSelect.innerHTML += `<option value="${y}">${y}</option>`);
+        } else { yearSelect.disabled = true; }
     }
 
     function updateEngines() {
         const brand = document.getElementById('brand').value;
         const model = document.getElementById('model').value;
         const engineSelect = document.getElementById('engine');
-
-        engineSelect.innerHTML = '<option value="">Mühərrik həcmi seçin...</option>';
-
+        engineSelect.innerHTML = '<option value="">Mühərrik seçin...</option>';
         if (brand && model && autoData[brand][model]) {
             engineSelect.disabled = false;
-            autoData[brand][model].engines.forEach(engine => {
-                engineSelect.innerHTML += `<option value="${engine}">${engine}</option>`;
-            });
-        } else {
-            engineSelect.disabled = true;
-        }
+            autoData[brand][model].engines.forEach(e => engineSelect.innerHTML += `<option value="${e}">${e}</option>`);
+        } else { engineSelect.disabled = true; }
     }
 
     function toggleCustomPartInput() {
         const partCategory = document.getElementById('partCategory').value;
         const customPartGroup = document.getElementById('customPartGroup');
-        const customPartInput = document.getElementById('customPart');
+        customPartGroup.style.display = (partCategory === 'custom') ? 'block' : 'none';
+    }
 
-        if (partCategory === 'custom') {
-            customPartGroup.style.display = 'block';
-            customPartInput.required = true;
-        } else {
-            customPartGroup.style.display = 'none';
-            customPartInput.required = false;
+    async function sendToTelegram(event) {
+        event.preventDefault();
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.innerText = "Göndərilir...";
+
+        const brand = document.getElementById('brand').value;
+        const model = document.getElementById('model').value;
+        const year = document.getElementById('year').value;
+        const engine = document.getElementById('engine').value;
+        const vin = document.getElementById('vin').value || "Qeyd edilməyib";
+        
+        let part = document.getElementById('partCategory').value;
+        if(part === 'custom') part = document.getElementById('customPart').value;
+        
+        const condition = document.getElementById('condition').value;
+
+        // Şablon Mesaj
+        const textMessage = `🔔 *YENİ EHTİYAT HİSSƏSİ SORĞUSU*\n\n` +
+            `🚗 *Avtomobil:* ${brand} ${model} (${year})\n` +
+            `⚙️ *Mühərrik:* ${engine}\n` +
+            `🔢 *VIN Kod:* \`${vin}\`\n\n` +
+            `🛠 *Axtarılan Detal:* ${part}\n` +
+            `🏷 *Durum:* ${condition}\n` +
+            `⏰ *Tarix:* ${new Date().toLocaleString('az-AZ')}`;
+
+        try {
+            // Text göndəririk
+            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: CHAT_ID, text: textMessage, parse_mode: 'Markdown' })
+            });
+
+            // Şəkillər varsa göndəririk
+            const photo1 = document.getElementById('photo1').files[0];
+            const photo2 = document.getElementById('photo2').files[0];
+
+            if (photo1) await sendPhotoToTg(photo1);
+            if (photo2) await sendPhotoToTg(photo2);
+
+            alert("✅ Sorğu uğurla Telegram-a göndərildi!");
+        } catch (error) {
+            alert("❌ Xəta baş verdi. Bot tokenini və Chat ID-ni yoxlayın.");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "Sorğunu Telegram-a Göndər";
         }
     }
 
-    function handleFormSubmit(event) {
-        event.preventDefault();
-        alert('Sorğunuz uğurla yaradıldı! Telegram üzərindən uyğun mağazalara göndərilir...');
+    async function sendPhotoToTg(file) {
+        const formData = new FormData();
+        formData.append('chat_id', CHAT_ID);
+        formData.append('photo', file);
+
+        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+            method: 'POST',
+            body: formData
+        });
     }
 </script>
 
