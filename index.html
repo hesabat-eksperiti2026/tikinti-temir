@@ -48,7 +48,6 @@
 
         .photo-box { background: #f1f5f9; border: 1px dashed #94a3b8; padding: 12px; border-radius: 8px; margin-top: 5px; }
         .btn-submit { width: 100%; background: var(--accent); color: white; border: none; padding: 15px; font-size: 16px; font-weight: 700; border-radius: 8px; cursor: pointer; margin-top: 10px; }
-        .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
 
         /* CANLI TƏKLİFLƏR PANELSİ */
         .live-offers { margin-top: 30px; display: none; }
@@ -100,7 +99,7 @@
     <div id="clientView">
         <div class="form-title">🚗 EHTİYAT HİSSƏSİ SORĞUSU</div>
         
-        <form id="tgRequestForm" onsubmit="sendToTelegram(event)">
+        <form id="partRequestForm" onsubmit="handleClientSubmit(event)">
             <!-- Marka və Model -->
             <div class="grid-2">
                 <div class="form-group">
@@ -209,12 +208,12 @@
             </div>
 
             <div id="offersContainer">
-                <!-- Mağazaların göndərdiyi təkliflər bura düşəcək -->
+                <!-- Sınaq üçün daxil edilən təkliflər bura düşəcək -->
             </div>
         </div>
     </div>
 
-    <!-- 2. MAĞAZA PANELİ (TELEGRAM LİNKİNƏ KLİKLƏYƏNDƏ AÇILAN SƏHİFƏ) -->
+    <!-- 2. MAĞAZA PANELİ (SIMULATION SƏHİFƏSİ) -->
     <div id="merchantView" style="display: none;">
         <div class="form-title" style="color:var(--accent);">🏬 MAĞAZA TƏKLİF FORMU (#SORĞU-104)</div>
         
@@ -258,10 +257,6 @@
 </div>
 
 <script>
-    // BOT INTEGRATION
-    const BOT_TOKEN = "8638131153:AAFqTlHKfVwx92Y63ZYK6sMNftsFlbmQjwc";
-    const CHAT_ID = "8889694970";
-
     const autoData = {
         "Mercedes-Benz": {
             "C-Class (C300, C250)": { years: [2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020], engines: ["1.8 L", "2.0 L Turbo", "3.5 L V6"] },
@@ -335,76 +330,12 @@
 
     let offerCounter = 0;
 
-    async function sendToTelegram(event) {
+    function handleClientSubmit(event) {
         event.preventDefault();
-        const btn = document.getElementById('submitBtn');
-        btn.disabled = true;
-        btn.innerText = "Telegram-a Göndərilir...";
-
-        const brand = document.getElementById('brand').value;
-        const model = document.getElementById('model').value;
-        const year = document.getElementById('year').value;
-        const engine = document.getElementById('engine').value;
-        const vin = document.getElementById('vin').value || "Qeyd edilməyib";
-        
-        let part = document.getElementById('partCategory').value;
-        if(part === 'custom') part = document.getElementById('customPart').value;
-        
-        const condition = document.getElementById('condition').value;
-
-        // Telegram Mesajı (Mağaza üçün sayta keçid linki ilə)
-        const textMessage = `🔔 *YENİ EHTİYAT HİSSƏSİ SORĞUSU (#104)*\n\n` +
-            `🚗 *Avtomobil:* ${brand} ${model} (${year})\n` +
-            `⚙️ *Mühərrik:* ${engine}\n` +
-            `🔢 *VIN Kod:* \`${vin}\`\n\n` +
-            `🛠 *Axtarılan Detal:* ${part}\n` +
-            `🏷 *Durum:* ${condition}\n\n` +
-            `👉 *Təklif vermək üçün linkə klikləyin:* https://avtonline.az/sorgu/104`;
-
-        try {
-            // Text Telegram-a gedir
-            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: CHAT_ID, text: textMessage, parse_mode: 'Markdown' })
-            });
-
-            // Şəkillər göndərilir
-            const photo1Input = document.getElementById('photo1');
-            const photo2Input = document.getElementById('photo2');
-
-            if (photo1Input && photo1Input.files.length > 0) {
-                await sendPhotoToTg(photo1Input.files[0]);
-            }
-            if (photo2Input && photo2Input.files.length > 0) {
-                await sendPhotoToTg(photo2Input.files[0]);
-            }
-
-            // Canlı təkliflər panelini aktiv edirik
-            document.getElementById('liveOffers').classList.add('active');
-            alert("✅ Sorğunuz Telegram üzərindən mağazalara çatdırıldı!");
-
-        } catch (error) {
-            alert("❌ Xəta baş verdi.");
-        } finally {
-            btn.disabled = false;
-            btn.innerText = "Sorğunu Mağazalara Göndər";
-        }
+        document.getElementById('liveOffers').classList.add('active');
+        alert("✅ Sorğunuz yaradıldı! Mağaza panelinə keçib qiymət təklifi yazaraq sınaqdan keçirə bilərsiniz.");
     }
 
-    async function sendPhotoToTg(file) {
-        if (!file || !file.size) return;
-        const formData = new FormData();
-        formData.append('chat_id', CHAT_ID);
-        formData.append('photo', file);
-
-        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
-            method: 'POST',
-            body: formData
-        });
-    }
-
-    // MAĞAZA TƏKLİFİ SAYTDAN GÖNDƏRİR
     function handleMerchantSubmit(e) {
         e.preventDefault();
         const storeName = document.getElementById('storeName').value;
@@ -412,7 +343,6 @@
         const brand = document.getElementById('offerBrand').value;
         const delivery = document.getElementById('offerDelivery').value || "30 dəqiqəyə";
 
-        // MÜŞTƏRİ EKRANINA TƏKLİF DÜŞÜR
         offerCounter++;
         document.getElementById('offerCount').innerText = `${offerCounter} Təklif`;
 
@@ -426,31 +356,17 @@
                 <span class="price">${price} AZN</span>
             </div>
             <div class="delivery-info">🏷 ${brand} | 🚚 ${delivery}</div>
-            <button class="btn-select" onclick="selectOffer('${storeName}', '${price}')">Sifarişi Təsdilə Və Seç</button>
+            <button class="btn-select" onclick="selectOffer('${storeName}', '${price}')">Sifarişi Təsdiqlə Və Seç</button>
         `;
 
         offersContainer.prepend(card);
-        alert("✅ Təklifiniz saytda müştərinin canlı ekranına düşdü!");
+        alert("✅ Təklifiniz müştərinin canlı ekranına əlavə olundu!");
         switchTab('client');
     }
 
-    // MÜŞTƏRİ SEÇİM EDİR VƏ MAĞAZANIN TELEGRAMINA SON BİLDİRİŞ GEDİR
-    async function selectOffer(storeName, price) {
+    function selectOffer(storeName, price) {
         const phone = document.getElementById('clientPhone').value || "050-123-45-67";
-        
-        const finalMsg = `🎉 *TƏBRİKLƏR! SİFARİŞİNİZ TƏSDİQLƏNDİ*\n\n` +
-                         `🏬 *Seçilən Mağaza:* ${storeName}\n` +
-                         `💰 *Məbləğ:* ${price} AZN\n\n` +
-                         `👤 *Müştərinin Telefonu:* \`${phone}\`\n` +
-                         `📞 *Dərhal zəng edin və ya WhatsApp-la əlaqə saxlayın!*`;
-
-        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chat_id: CHAT_ID, text: finalMsg, parse_mode: 'Markdown' })
-        });
-
-        alert(`✅ Sifarişiniz təsdiqləndi! ${storeName} mağazasına bildiriş və nömrəniz göndərildi.`);
+        alert(`🎉 Sifariş təsdiqləndi!\n🏬 Mağaza: ${storeName}\n💰 Məbləğ: ${price} AZN\n📞 Müştəri: ${phone}`);
     }
 </script>
 
