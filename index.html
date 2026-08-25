@@ -8,12 +8,13 @@
         :root {
             --primary: #0f172a;
             --accent: #f59e0b;
+            --success: #10b981;
             --bg: #f8fafc;
             --card-bg: #ffffff;
             --border: #cbd5e1;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
         body { background-color: var(--bg); color: #334155; padding: 20px 12px; }
 
         .header { max-width: 600px; margin: 0 auto 20px auto; text-align: center; }
@@ -40,6 +41,42 @@
         .photo-box { background: #f1f5f9; border: 1px dashed #94a3b8; padding: 12px; border-radius: 8px; margin-top: 5px; }
         .btn-submit { width: 100%; background: var(--accent); color: white; border: none; padding: 15px; font-size: 16px; font-weight: 700; border-radius: 8px; cursor: pointer; margin-top: 10px; }
         .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        /* CANLI TƏKLİFLƏR PANELSİ (EKRANDA GÖRÜNƏN CAVABLAR) */
+        .live-offers { margin-top: 30px; display: none; }
+        .live-offers.active { display: block; }
+        .status-bar {
+            background: #e0f2fe; border: 1px solid #bae6fd; padding: 12px 16px;
+            border-radius: 8px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;
+        }
+        .status-text { font-size: 13px; color: #0369a1; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+        .pulse-dot {
+            width: 8px; height: 8px; background-color: var(--accent); border-radius: 50%;
+            box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
+
+        .offer-card {
+            background: #ffffff; border: 1px solid var(--border); border-radius: 12px;
+            padding: 16px; margin-bottom: 12px; animation: slideDown 0.4s ease-out; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+        }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .store-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .store-name { font-weight: 700; font-size: 15px; color: var(--primary); }
+        .rating { font-size: 12px; color: #d97706; background: #fef3c7; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
+        .offer-details { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border); }
+        .tag { display: inline-block; font-size: 11px; padding: 3px 8px; border-radius: 4px; font-weight: 600; margin-right: 6px; }
+        .tag-original { background: #dcfce7; color: #15803d; }
+        .tag-aftermarket { background: #f1f5f9; color: #475569; }
+        .price { font-size: 20px; font-weight: 800; color: var(--primary); }
+        .delivery-info { font-size: 12px; color: #64748b; margin-top: 4px; }
+        .btn-contact { background: var(--success); color: white; border: none; padding: 8px 14px; font-size: 13px; font-weight: 600; border-radius: 6px; cursor: pointer; text-decoration: none; display: inline-block; }
+
+        @media (max-width: 480px) { .grid-2 { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -142,14 +179,29 @@
             </select>
         </div>
 
-        <button type="submit" class="btn-submit" id="submitBtn">Sorğunu Telegram-a Göndər</button>
+        <button type="submit" class="btn-submit" id="submitBtn">Sorğunu Göndər</button>
     </form>
+
+    <!-- MÜŞTƏRİ ÜÇÜN CANLI MAĞAZA TƏKLİFLƏRİ PANELSİ -->
+    <div class="live-offers" id="liveOffers">
+        <div class="status-bar">
+            <div class="status-text">
+                <div class="pulse-dot"></div>
+                <span id="statusMessage">Sorğu aktivdir. Mağazalardan canlı qiymət cavabları gözlənilir...</span>
+            </div>
+            <strong id="offerCount" style="font-size: 13px;">0 Təklif</strong>
+        </div>
+
+        <div id="offersContainer">
+            <!-- Dynamic Simulated Offers Will Appear Here -->
+        </div>
+    </div>
 </div>
 
 <script>
-    // BOT CONFIG
-    const BOT_TOKEN = "8638131153:AAFqTlHKfVwx92Y63ZYK6sMNftsFlbmQjwc"; // BotFather-dən aldığınız token
-    const CHAT_ID = "8889694970";     // userinfobot-dan aldığınız Chat ID
+    // BOT INTEGRATION (TƏNZİMLƏNİB)
+    const BOT_TOKEN = "8638131153:AAFqTlHKfVwx92Y63ZYK6sMNftsFlbmQjwc";
+    const CHAT_ID = "8889694970";
 
     const autoData = {
         "Mercedes-Benz": {
@@ -209,11 +261,13 @@
         customPartGroup.style.display = (partCategory === 'custom') ? 'block' : 'none';
     }
 
+    let offerCounter = 0;
+
     async function sendToTelegram(event) {
         event.preventDefault();
         const btn = document.getElementById('submitBtn');
         btn.disabled = true;
-        btn.innerText = "Göndərilir...";
+        btn.innerText = "Telegram-a Göndərilir...";
 
         const brand = document.getElementById('brand').value;
         const model = document.getElementById('model').value;
@@ -226,7 +280,7 @@
         
         const condition = document.getElementById('condition').value;
 
-        // Şablon Mesaj
+        // Telegram Mesajı
         const textMessage = `🔔 *YENİ EHTİYAT HİSSƏSİ SORĞUSU*\n\n` +
             `🚗 *Avtomobil:* ${brand} ${model} (${year})\n` +
             `⚙️ *Mühərrik:* ${engine}\n` +
@@ -236,26 +290,27 @@
             `⏰ *Tarix:* ${new Date().toLocaleString('az-AZ')}`;
 
         try {
-            // Text göndəririk
+            // Text Telegram-a gedir
             await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ chat_id: CHAT_ID, text: textMessage, parse_mode: 'Markdown' })
             });
 
-            // Şəkillər varsa göndəririk
+            // Şəkillər göndərilir
             const photo1 = document.getElementById('photo1').files[0];
             const photo2 = document.getElementById('photo2').files[0];
 
             if (photo1) await sendPhotoToTg(photo1);
             if (photo2) await sendPhotoToTg(photo2);
 
-            alert("✅ Sorğu uğurla Telegram-a göndərildi!");
+            // Telegram göndərildikdən sonra canlı panel işə düşür
+            startLiveOffersSimulation();
+
         } catch (error) {
-            alert("❌ Xəta baş verdi. Bot tokenini və Chat ID-ni yoxlayın.");
-        } finally {
+            alert("❌ Xəta baş verdi. Telegram bota /start verdiyinizdən əmin olun.");
             btn.disabled = false;
-            btn.innerText = "Sorğunu Telegram-a Göndər";
+            btn.innerText = "Sorğunu Göndər";
         }
     }
 
@@ -268,6 +323,50 @@
             method: 'POST',
             body: formData
         });
+    }
+
+    function startLiveOffersSimulation() {
+        const btn = document.getElementById('submitBtn');
+        btn.innerText = "Sorğu Aktivdir...";
+        
+        const liveOffers = document.getElementById('liveOffers');
+        liveOffers.classList.add('active');
+        document.getElementById('offersContainer').innerHTML = '';
+        offerCounter = 0;
+
+        // Mağaza cavablarının canlı simulyasiyası
+        setTimeout(() => addSimulatedOffer("Məmmədov Auto Parts", 4.9, 35, "Orijinal (Denso)", "20 dəqiqəyə usta boksa çatdırılma", "tag-original"), 2500);
+        setTimeout(() => addSimulatedOffer("Baku Auto Store (Babək pr.)", 4.7, 25, "AFT (NGK Analoq)", "Gəlib götürmək və ya Kuryer", "tag-aftermarket"), 5500);
+        setTimeout(() => addSimulatedOffer("Ford Ehtiyat Hissələri (Sumqayıt yolu)", 4.8, 28, "Orijinal (Motorcraft)", "30 dəqiqəyə çatdırılma", "tag-original"), 9000);
+    }
+
+    function addSimulatedOffer(storeName, rating, price, brand, delivery, tagClass) {
+        offerCounter++;
+        document.getElementById('offerCount').innerText = `${offerCounter} Təklif`;
+
+        const offersContainer = document.getElementById('offersContainer');
+        const card = document.createElement('div');
+        card.className = 'offer-card';
+
+        card.innerHTML = `
+            <div class="store-header">
+                <span class="store-name">🏬 ${storeName}</span>
+                <span class="rating">★ ${rating}</span>
+            </div>
+            <div>
+                <span class="tag ${tagClass}">${brand}</span>
+            </div>
+            <div class="delivery-info">🚚 ${delivery}</div>
+            <div class="offer-details">
+                <div>
+                    <span style="font-size:11px; color:#64748b;">Qiymət:</span>
+                    <div class="price">${price} AZN</div>
+                </div>
+                <a href="https://wa.me/994702887282" target="_blank" class="btn-contact">Sifariş Et (WhatsApp)</a>
+            </div>
+        `;
+
+        offersContainer.prepend(card);
     }
 </script>
 
