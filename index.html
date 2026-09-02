@@ -2,372 +2,1317 @@
 <html lang="az">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AVTOONLINE.AZ - Canlı Sorğu Platforması</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Golden Vit Pharma - Səyyar Satış CRM</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --primary: #0f172a;
-            --accent: #f59e0b;
-            --blue: #0284c7;
-            --success: #10b981;
-            --bg: #f8fafc;
-            --card-bg: #ffffff;
-            --border: #cbd5e1;
+            --primary: #1b5e20; --secondary: #2e7d32; --accent: #4caf50;
+            --bg: #eef2ef; --card-bg: #ffffff; --text: #263238; --gray: #78909c;
+            --warn: #ef6c00; --danger: #c62828; --info: #0277bd;
+            --sidebar-w: 250px;
+        }
+        html, body { touch-action: manipulation; margin: 0; padding: 0; background: var(--bg); color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-text-size-adjust: 100%; }
+
+        /* ---------- LAYOUT ---------- */
+        .app-shell { display: flex; min-height: 100vh; width: 100%; }
+        .sidebar { display: none; width: var(--sidebar-w); flex-shrink: 0; background: linear-gradient(180deg,#1b5e20,#164a1a); color: #fff; padding: 18px 0; flex-direction: column; position: sticky; top: 0; height: 100vh; }
+        .sidebar-brand { font-size: 17px; font-weight: 800; padding: 0 20px 16px; border-bottom: 1px solid rgba(255,255,255,0.12); display: flex; align-items: center; gap: 8px; }
+        .sidebar-nav { list-style: none; margin: 12px 0; padding: 0; flex: 1; overflow-y: auto; }
+        .sidebar-nav li a { display: flex; align-items: center; gap: 10px; padding: 11px 20px; color: #c8e6c9; text-decoration: none; font-size: 13px; font-weight: 600; cursor: pointer; border-left: 3px solid transparent; }
+        .sidebar-nav li a:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        .sidebar-nav li a.active { background: rgba(255,255,255,0.14); color: #fff; border-left-color: var(--accent); }
+        .sidebar-foot { padding: 12px 20px; border-top: 1px solid rgba(255,255,255,0.12); }
+        .sidebar-foot a { color: #ef9a9a; font-size: 12px; font-weight: 700; cursor: pointer; text-decoration: none; }
+
+        .content-area { flex: 1; min-width: 0; padding: 16px; box-sizing: border-box; }
+        .container { max-width: 480px; margin: 0 auto; }
+
+        @media (min-width: 1000px) {
+            body.admin-desktop .sidebar { display: flex; }
+            body.admin-desktop .container { max-width: 1100px; margin: 0; }
+            body.admin-desktop .mobile-admin-nav { display: none !important; }
+            body.admin-desktop .content-area { padding: 26px 30px; }
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
-        body { background-color: var(--bg); color: #334155; padding: 20px 12px; }
+        .header { text-align: center; padding: 15px 0; border-bottom: 2px solid #e0e0e0; margin-bottom: 15px; background: linear-gradient(135deg, #e8f5e9, #c8e6c9); border-radius: 10px; cursor: pointer; }
+        .logo-text { font-size: 20px; font-weight: 800; color: var(--primary); letter-spacing: 0.5px; }
+        .sub-text { font-size: 11px; color: var(--gray); font-weight: 600; text-transform: uppercase; margin-top: 3px; }
 
-        .header { max-width: 600px; margin: 0 auto 20px auto; text-align: center; }
-        .logo { font-size: 30px; font-weight: 900; color: var(--primary); letter-spacing: -1px; }
-        .logo span { color: var(--accent); }
-        .slogan { font-size: 13px; color: #64748b; font-weight: 700; margin-top: 4px; }
+        .card { background: #fafafa; border: 1px solid #e0e0e0; border-radius: 12px; padding: 14px; margin-bottom: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        h3 { margin: 0 0 10px 0; color: var(--primary); font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
 
-        .container {
-            max-width: 600px; margin: 0 auto; background: var(--card-bg);
-            border-radius: 16px; padding: 20px; border: 1px solid var(--border);
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
-        }
+        label { display: block; margin-top: 10px; font-size: 11px; font-weight: 700; color: #455a64; text-transform: uppercase; }
+        input, select, textarea { width: 100%; padding: 10px; margin-top: 4px; border: 1px solid #cfd8dc; border-radius: 8px; box-sizing: border-box; font-size: 16px !important; background: #fff; font-family: inherit; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(76,175,80,0.2); }
 
-        .tab-buttons { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab-btn {
-            flex: 1; padding: 10px; border: 1px solid var(--border); background: #f1f5f9;
-            border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; color: #64748b;
-        }
-        .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        button { background: var(--secondary); color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 14px; box-shadow: 0 4px 6px rgba(46,125,50,0.18); }
+        button:active { transform: scale(0.98); }
+        button:hover { background: var(--primary); }
 
-        .form-title { font-size: 15px; font-weight: 700; margin-bottom: 16px; color: var(--primary); border-bottom: 2px solid var(--bg); padding-bottom: 8px; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .form-group { margin-bottom: 14px; }
-        label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 5px; color: #475569; text-transform: uppercase; }
-        
-        input[type="text"], input[type="number"], select, input[type="file"] {
-            width: 100%; padding: 11px; border: 1px solid var(--border);
-            border-radius: 8px; font-size: 14px; background-color: #fff; outline: none;
-        }
+        .hidden { display: none !important; }
+        .badge { background: #e8f5e9; color: var(--primary); padding: 6px 12px; border-radius: 20px; font-size: 12px; display: inline-block; margin-bottom: 12px; font-weight: 700; border: 1px solid #c8e6c9; }
+        .badge-warn { background: #fff3e0; color: var(--warn); border-color: #ffe0b2; }
+        .badge-danger { background: #ffebee; color: var(--danger); border-color: #ffcdd2; }
 
-        .photo-box { background: #f1f5f9; border: 1px dashed #94a3b8; padding: 12px; border-radius: 8px; margin-top: 5px; }
-        .btn-submit { width: 100%; background: var(--accent); color: white; border: none; padding: 15px; font-size: 16px; font-weight: 700; border-radius: 8px; cursor: pointer; margin-top: 10px; }
+        .stock-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eceff1; font-size: 13px; }
+        .stock-item:last-child { border-bottom: none; }
+        .logout-btn { background: #c62828; box-shadow: 0 4px 6px rgba(198,40,40,0.2); margin-top: 20px; }
+        .logout-btn:hover { background: #b71c1c; }
 
-        /* CANLI TƏKLİFLƏR PANELSİ */
-        .live-offers { margin-top: 30px; display: none; }
-        .live-offers.active { display: block; }
-        .status-bar {
-            background: #e0f2fe; border: 1px solid #bae6fd; padding: 12px 16px;
-            border-radius: 8px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;
-        }
-        .status-text { font-size: 13px; color: #0369a1; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-        .pulse-dot {
-            width: 8px; height: 8px; background-color: var(--accent); border-radius: 50%;
-            box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); animation: pulse 1.5s infinite;
-        }
-        @keyframes pulse {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
-        }
+        #map, #adminMap { width: 100%; height: 320px; border-radius: 8px; margin-top: 8px; border: 1px solid #cfd8dc; }
 
-        .offer-card {
-            background: #ffffff; border: 1px solid var(--border); border-radius: 12px;
-            padding: 16px; margin-bottom: 12px; animation: slideDown 0.4s ease-out; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
-        }
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        .store-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .store-name { font-weight: 700; font-size: 15px; color: var(--primary); }
-        .price { font-size: 20px; font-weight: 800; color: var(--blue); }
-        .delivery-info { font-size: 12px; color: #64748b; margin-top: 4px; }
-        .btn-select { background: var(--success); color: white; border: none; padding: 10px 14px; font-size: 13px; font-weight: 700; border-radius: 6px; cursor: pointer; width: 100%; margin-top: 10px; }
+        .table-container { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 10px; border: 1px solid #e0e0e0; border-radius: 8px; }
+        table { width: 100%; min-width: 560px; border-collapse: collapse; font-size: 11px; background: #fff; }
+        th, td { border: 1px solid #e0e0e0; padding: 7px 6px; text-align: left; white-space: nowrap; }
+        th { background: #e8f5e9; color: var(--primary); font-weight: 700; position: sticky; top: 0; }
+        tr.row-flagged { background: #fff3e0; }
+        tr.row-flagged td { color: #e65100; }
 
-        @media (max-width: 480px) { .grid-2 { grid-template-columns: 1fr; } }
+        .login-banner { font-size: 12px; color: #37474f; line-height: 1.5; margin-bottom: 12px; text-align: center; background: #e8f5e9; padding: 10px; border-radius: 8px; border: 1px solid #c8e6c9; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px; }
+        @media (min-width: 1000px) { body.admin-desktop .stats-grid.kpi-grid { grid-template-columns: repeat(5, 1fr); } }
+        .stat-box { background: #fff; padding: 12px 10px; border-radius: 10px; text-align: center; border: 1px solid #e0e0e0; }
+        .stat-box.good { border-color: #c8e6c9; background: #f1f8f2; }
+        .stat-box.warn { border-color: #ffe0b2; background: #fff8ef; }
+        .stat-box.bad { border-color: #ffcdd2; background: #fff3f2; }
+        .stat-num { font-size: 20px; font-weight: 800; color: var(--primary); }
+        .stat-num.warn-text { color: var(--warn); }
+        .stat-num.bad-text { color: var(--danger); }
+        .stat-label { font-size: 10px; color: #607d8b; font-weight: 700; text-transform: uppercase; margin-top: 2px; }
+        .stat-sub { font-size: 10px; margin-top: 3px; font-weight: 700; }
+
+        .cart-item-row { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 6px; margin-top: 4px; border: 1px solid #cfd8dc; border-radius: 6px; font-size: 12px; }
+        .calc-total-box { background: #e8f5e9; border: 1px solid #c8e6c9; padding: 10px; border-radius: 8px; margin-top: 10px; font-weight: bold; color: var(--primary); text-align: right; font-size: 12px; line-height: 1.5; }
+
+        .fullscreen-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; justify-content: center; align-items: center; padding: 16px; box-sizing: border-box; }
+        .modal-content { background: #fff; width: 100%; max-width: 440px; max-height: 90vh; overflow-y: auto; border-radius: 12px; padding: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+        .nav-choice-btn { margin-top: 8px; padding: 10px; font-size: 13px; text-align: center; border-radius: 8px; font-weight: bold; text-decoration: none; display: block; color: white; }
+
+        .products-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+        @media (min-width: 1000px) { body.admin-desktop .products-grid { grid-template-columns: repeat(4, 1fr); } }
+        .product-card { background: #fff; border: 1px solid #c8e6c9; border-radius: 8px; padding: 8px; text-align: center; cursor: pointer; }
+        .product-title { font-size: 11px; font-weight: bold; color: var(--primary); margin-bottom: 4px; }
+        .product-price { font-size: 10px; color: var(--secondary); font-weight: 600; }
+        .web-link-btn { display: block; text-align: center; background: #0277bd; color: white; text-decoration: none; padding: 10px; border-radius: 8px; font-size: 12px; font-weight: bold; margin-top: 12px; }
+
+        .pill { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 800; }
+        .pill-A { background: #c8e6c9; color: #1b5e20; }
+        .pill-B { background: #fff9c4; color: #827717; }
+        .pill-C { background: #eceff1; color: #455a64; }
+        .pill-green { background: #c8e6c9; color: #1b5e20; }
+        .pill-orange { background: #ffe0b2; color: #e65100; }
+        .pill-red { background: #ffcdd2; color: #b71c1c; }
+
+        .list-row { border: 1px solid #e0e0e0; border-radius: 8px; padding: 8px 10px; margin-top: 8px; background: #fff; font-size: 12px; }
+        .list-row-head { display: flex; justify-content: space-between; align-items: center; }
+        .mini-btn { width: auto; margin: 6px 4px 0 0; padding: 6px 10px; font-size: 11px; display: inline-block; }
+
+        .setup-box { background: #fff3e0; border: 1px solid #ffcc80; border-radius: 10px; padding: 14px; font-size: 12px; line-height: 1.6; color: #5d4037; }
+        .setup-box code { background: #fff; padding: 1px 5px; border-radius: 4px; border: 1px solid #ffe0b2; }
+
+        .mobile-admin-nav { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px; }
+        .mobile-admin-nav button { margin: 0; padding: 8px 4px; font-size: 10px; }
+
+        .dash-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+        @media (min-width: 1000px) { body.admin-desktop .dash-grid.charts-3 { grid-template-columns: 1.4fr 1fr 1fr; } }
+        .chart-box { background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 14px; box-sizing: border-box; height: 260px; display: flex; flex-direction: column; }
+        .chart-box canvas { flex: 1; max-height: 100% !important; width: 100% !important; }
+        .chart-title { font-size: 12px; font-weight: 800; color: #37474f; text-transform: uppercase; margin-bottom: 8px; }
+
+        .settings-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+        .settings-row label { flex-shrink: 0; width: 130px; margin: 0; text-transform: none; font-size: 12px; font-weight: 600; color: #263238; }
+        .settings-row input { margin: 0; }
+        .settings-row button { width: auto; margin: 0; padding: 8px 12px; font-size: 11px; }
     </style>
 </head>
-<body>
+<body id="bodyEl">
 
-<div class="header">
-    <div class="logo">AVTO<span>ONLINE.AZ</span></div>
-    <div class="slogan">Canlı Ehtiyat Hissəsi Sorğu Platforması</div>
-</div>
+<div class="app-shell">
 
-<div class="container">
-    <!-- PANEL SINAQ KEÇİDLƏRİ -->
-    <div class="tab-buttons">
-        <button class="tab-btn active" onclick="switchTab('client')">👤 Müştəri Paneli</button>
-        <button class="tab-btn" onclick="switchTab('merchant')">🏬 Mağaza Paneli (Linklə)</button>
+    <!-- DESKTOP SIDEBAR (ADMIN) -->
+    <div class="sidebar" id="sidebarNav">
+        <div class="sidebar-brand">🌿 Golden Vit CRM</div>
+        <ul class="sidebar-nav" id="sidebarMenu">
+            <li><a data-page="adminPanel" onclick="switchAdminPage('adminPanel')">📈 Analitik Dashboard</a></li>
+            <li><a data-page="adminRouteReportPage" onclick="switchAdminPage('adminRouteReportPage')">🛣️ Rut & Ziyarət Hesabatı</a></li>
+            <li><a data-page="adminStockReportPage" onclick="switchAdminPage('adminStockReportPage')">📦 Stok & Satış Hesabatı</a></li>
+            <li><a data-page="adminDoctorsPage" onclick="switchAdminPage('adminDoctorsPage')">👨‍⚕️ Həkim Bazası</a></li>
+            <li><a data-page="adminPharmaciesPage" onclick="switchAdminPage('adminPharmaciesPage')">🏪 Aptek Bazası</a></li>
+            <li><a data-page="adminApprovalsPage" onclick="switchAdminPage('adminApprovalsPage')">✅ Bonus Təsdiqi <span id="pendingCountBadgeSidebar"></span></a></li>
+            <li><a data-page="adminTransferPage" onclick="switchAdminPage('adminTransferPage')">🔄 Mal, Büdcə & İşçi Dəyişikliyi</a></li>
+            <li><a data-page="adminMapPage" onclick="switchAdminPage('adminMapPage')">🗺️ Canlı GPS Xəritə</a></li>
+            <li><a data-page="adminSettingsPage" onclick="switchAdminPage('adminSettingsPage')">⚙️ Tənzimləmələr</a></li>
+        </ul>
+        <div class="sidebar-foot"><a onclick="logout()">🚪 Sistemdən Çıxış</a></div>
     </div>
 
-    <!-- 1. MÜŞTƏRİ SORĞU PANELİ -->
-    <div id="clientView">
-        <div class="form-title">🚗 EHTİYAT HİSSƏSİ SORĞUSU</div>
-        
-        <form id="partRequestForm" onsubmit="handleClientSubmit(event)">
-            <!-- Marka və Model -->
-            <div class="grid-2">
-                <div class="form-group">
-                    <label for="brand">Marka *</label>
-                    <select id="brand" onchange="updateModels()" required>
-                        <option value="">Seçin...</option>
-                        <option value="Mercedes-Benz">Mercedes-Benz</option>
-                        <option value="Ford">Ford</option>
-                        <option value="Hyundai">Hyundai</option>
-                        <option value="Kia">Kia</option>
-                        <option value="Toyota">Toyota</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="model">Model *</label>
-                    <select id="model" onchange="updateYears()" required disabled>
-                        <option value="">Əvvəlcə markanı seçin</option>
-                    </select>
+    <div class="content-area">
+        <div class="container" id="mainContainer">
+
+            <div class="header" onclick="location.reload();" title="Səhifəni yeniləmək üçün toxun">
+                <div class="logo-text">🌿 Golden Vit Pharma</div>
+                <div class="sub-text">Səyyar Satış və Sahə Nəzarət Sistemi</div>
+            </div>
+
+            <div id="setupWarning" class="card" style="border: 1px solid #ffcc80;">
+                <div class="setup-box">
+                    🧪 <b>Test rejimi</b> — dizayn və funksiyalar hazırda brauzer yaddaşında işləyir (verilənlər bazası hələ qoşulmayıb). Səhifəni yeniləsəniz daxil etdiyiniz məlumatlar sıfırlanır. Hazır olanda Firestore inteqrasiyasını geri əlavə edərik.
                 </div>
             </div>
 
-            <!-- İl və Mühərrik -->
-            <div class="grid-2">
-                <div class="form-group">
-                    <label for="year">İl *</label>
-                    <select id="year" onchange="updateEngines()" required disabled>
-                        <option value="">Əvvəlcə modeli seçin</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="engine">Mühərrik *</label>
-                    <select id="engine" required disabled>
-                        <option value="">Əvvəlcə ili seçin</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- VIN Kod -->
-            <div class="form-group">
-                <label for="vin">VIN Kod (Texpasportdan 17 simvol)</label>
-                <input type="text" id="vin" placeholder="Məs: 1FA6P8CF0J..." maxlength="17" style="text-transform: uppercase;">
-            </div>
-
-            <!-- ŞƏKİL ƏLAVƏ ET (VIN KODUN BİRBAŞA ALTINDA) -->
-            <div class="form-group">
-                <label>Texpasport və ya Detal Şəkli (Maks 2 Ədəd)</label>
-                <div class="photo-box grid-2">
-                    <div>
-                        <span style="font-size:11px; color:#64748b;">Şəkil 1 (Texpasport):</span>
-                        <input type="file" id="photo1" accept="image/*">
+            <!-- GİRİŞ EKRANI -->
+            <div id="loginScreen">
+                <div class="card">
+                    <h3>🔐 Sistemə Giriş</h3>
+                    <p class="login-banner">
+                        🎯 <b>Hədəfə Doğru, Addım-addım!</b><br>
+                        Hər bir uğurlu ziyarət və dəqiq qeydiyyat sizin peşəkar inkişafınızın və ümumi uğurumuzun təməlidir. Məsuliyyətlə çalışaq! 🚀
+                    </p>
+                    <div class="stats-grid">
+                        <div class="stat-box"><div class="stat-num" id="loginProductCount">9</div><div class="stat-label">Aktiv Məhsul</div></div>
+                        <div class="stat-box"><div class="stat-num" id="loginAgentCount">7</div><div class="stat-label">Aktiv İşçi</div></div>
                     </div>
-                    <div>
-                        <span style="font-size:11px; color:#64748b;">Şəkil 2 (Detal):</span>
-                        <input type="file" id="photo2" accept="image/*">
+                    <label>İstifadəçi / Rol Seçimi:</label>
+                    <select id="userSelect" style="padding: 10px; font-weight: 600;"></select>
+                    <label>Şifrə:</label>
+                    <input type="password" id="loginPassword" placeholder="Şifrənizi daxil edin">
+                    <button onclick="login()">Sistemə Daxil Ol</button>
+                </div>
+
+                <div class="card" style="border: 1px solid var(--accent);">
+                    <h3>💊 Şirkət Məhsulları & Təlimatları</h3>
+                    <p style="font-size: 11px; color: var(--gray); margin-top: -5px;">Həkim təqdimatı zamanı istənilən dərmana toxunaraq xüsusiyyətləri açın:</p>
+                    <div class="products-grid" id="publicProductsList"></div>
+                </div>
+            </div>
+
+            <!-- ==================== ADMIN: DASHBOARD ==================== -->
+            <div id="adminPanel" class="hidden">
+                <div class="mobile-admin-nav">
+                    <button style="background:#0277bd;" onclick="switchAdminPage('adminRouteReportPage')">🛣️ Rut</button>
+                    <button style="background:#2e7d32;" onclick="switchAdminPage('adminStockReportPage')">📦 Stok</button>
+                    <button style="background:#00838f;" onclick="switchAdminPage('adminDoctorsPage')">👨‍⚕️ Həkim</button>
+                    <button style="background:#ad1457;" onclick="switchAdminPage('adminPharmaciesPage')">🏪 Aptek</button>
+                    <button style="background:#ef6c00;" onclick="switchAdminPage('adminApprovalsPage')">✅ Təsdiq</button>
+                    <button style="background:#6a1b9a;" onclick="switchAdminPage('adminTransferPage')">🔄 Transfer</button>
+                    <button style="background:#37474f;" onclick="switchAdminPage('adminMapPage')">🗺️ Xəritə</button>
+                    <button style="background:#546e7a;" onclick="switchAdminPage('adminSettingsPage')">⚙️ Ayarlar</button>
+                    <button style="background:#c62828;" onclick="logout()">🚪 Çıxış</button>
+                </div>
+
+                <div id="adminAlertBox"></div>
+
+                <h3 style="margin-top:4px;">📈 Rəhbər üçün Ümumi Mənzərə</h3>
+                <div class="stats-grid kpi-grid" id="kpiBox"></div>
+
+                <div class="dash-grid charts-3">
+                    <div class="chart-box">
+                        <div class="chart-title">📈 Satış Trendi (son 6 ay, net ₼)</div>
+                        <canvas id="salesTrendChart"></canvas>
+                    </div>
+                    <div class="chart-box">
+                        <div class="chart-title">🥧 Məhsul Satış Payı (bu ay)</div>
+                        <canvas id="productShareChart"></canvas>
+                    </div>
+                    <div class="chart-box">
+                        <div class="chart-title">👥 İşçi Performansı (bu ay, net ₼)</div>
+                        <canvas id="agentPerformanceChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top:16px;">
+                    <h3>👥 İşçi Performans Cədvəli (bu ay)</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead><tr><th>İşçi</th><th>Satış (₼)</th><th>Ziyarət Sayı</th><th>Gecikmiş Həkim</th><th>Aptek Borcu (₼)</th></tr></thead>
+                            <tbody id="agentPerfTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📦 Ümumi Anbar Vəziyyəti</h3>
+                    <p style="font-size:10px; color:var(--gray); margin-top:-6px;">🔴 15 qutudan az qalan məhsullar təkrar tədarük tələb edir.</p>
+                    <div id="adminTotalStock"></div>
+                </div>
+            </div>
+
+            <!-- ==================== ADMIN: RUT HESABATI ==================== -->
+            <div id="adminRouteReportPage" class="hidden">
+                <div class="mobile-admin-nav" style="grid-template-columns:1fr;"><button style="background:var(--secondary);" onclick="switchAdminPage('adminPanel')">⬅️ Dashboard-a Qayıt</button></div>
+                <div class="card">
+                    <h3>🛣️ İşçilərin Ziyarət Statistikası</h3>
+                    <p style="font-size:10px; color:var(--gray); margin-top:-6px;">🚩 işarəli sətirlər: GPS-in qeydiyyat nöqtəsindən 150m-dən çox kənarlaşdığı ziyarətlərdir.</p>
+                    <label>İşçi Seçin:</label>
+                    <select id="filterRouteAgent" onchange="filterRouteReport()"></select>
+                    <label>Tarix:</label>
+                    <input type="date" id="filterRouteDate" onchange="filterRouteReport()">
+                    <div id="routeSummaryBox" class="stats-grid" style="margin-top: 10px;"></div>
+                    <div class="table-container">
+                        <table>
+                            <thead><tr><th>Tarix/Saat</th><th>İşçi</th><th>Rayon</th><th>Obyekt</th><th>Ziyarət Növü & Detallar</th><th>Həkimə Verilən</th><th>GPS</th></tr></thead>
+                            <tbody id="routeTableBody"></tbody>
+                        </table>
                     </div>
                 </div>
             </div>
 
-            <!-- Ehtiyat Hissəsi -->
-            <div class="form-group">
-                <label for="partCategory">Ehtiyat Hissəsi *</label>
-                <select id="partCategory" onchange="toggleCustomPartInput()" required>
-                    <option value="">Axtarılan detalı seçin...</option>
-                    <option value="Alışdırma şamları (Sveça)">Alışdırma şamları (Sveça)</option>
-                    <option value="Əyləc bəndləri (Nakladka)">Əyləc bəndləri (Nakladka)</option>
-                    <option value="EVAP Purge Klapanı">EVAP Purge Klapanı</option>
-                    <option value="Yağ / Hava / Salun Filtri">Yağ / Hava / Salun Filtri</option>
-                    <option value="Akkumulyator">Akkumulyator</option>
-                    <option value="Amortizatorlar">Amortizatorlar</option>
-                    <option value="Qabaq / Arxa Bufer">Qabaq / Arxa Bufer</option>
-                    <option value="custom">-- Siyahıda Yoxdur (Əllə Yaz) --</option>
-                </select>
-            </div>
-
-            <div class="form-group" id="customPartGroup" style="display: none;">
-                <label for="customPart">Detalın Adını Dəqiq Yazın *</label>
-                <input type="text" id="customPart" placeholder="Məs: Sağ ön duman işığı çərçivəsi">
-            </div>
-
-            <div class="form-group">
-                <label for="condition">Üstünlük verilən durum</label>
-                <select id="condition">
-                    <option value="Fərq etməz">Fərq etməz (Ən sərfəli təklif)</option>
-                    <option value="Yalnız Orijinal">Yalnız Orijinal</option>
-                    <option value="Firma / Analoq (AFT)">Firma / Analoq (AFT)</option>
-                    <option value="İşlənmiş (Ölüxana)">İşlənmiş (Ölüxana)</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="clientPhone">Əlaqə Telefonunuz *</label>
-                <input type="text" id="clientPhone" placeholder="Məs: 050-123-45-67" required>
-            </div>
-
-            <button type="submit" class="btn-submit" id="submitBtn">Sorğunu Mağazalara Göndər</button>
-        </form>
-
-        <!-- MÜŞTƏRİ ÜÇÜN CANLI MAĞAZA TƏKLİFLƏRİ PANELSİ -->
-        <div class="live-offers" id="liveOffers">
-            <div class="status-bar">
-                <div class="status-text">
-                    <div class="pulse-dot"></div>
-                    <span id="statusMessage">Sorğu aktivdir. Mağazalardan canlı qiymət cavabları gözlənilir...</span>
+            <!-- ==================== ADMIN: STOK HESABATI ==================== -->
+            <div id="adminStockReportPage" class="hidden">
+                <div class="mobile-admin-nav" style="grid-template-columns:1fr;"><button style="background:var(--secondary);" onclick="switchAdminPage('adminPanel')">⬅️ Dashboard-a Qayıt</button></div>
+                <div class="card">
+                    <h3>📋 Aptek Üzrə Nağd, Nisyə və Bonus Balansı</h3>
+                    <label>İşçi Seçin:</label>
+                    <select id="filterStockAgent" onchange="filterStockReport()"></select>
+                    <label>Tarix:</label>
+                    <input type="date" id="filterStockDate" onchange="filterStockReport()">
+                    <div class="table-container">
+                        <table>
+                            <thead><tr><th>Tarix</th><th>İşçi</th><th>Aptek</th><th>Əməliyyat</th><th>Məhsul</th><th>Miq</th><th>Bonus</th><th>Net</th></tr></thead>
+                            <tbody id="stockReportTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div id="adminStockCalcBox" class="calc-total-box"></div>
                 </div>
-                <strong id="offerCount" style="font-size: 13px;">0 Təklif</strong>
             </div>
 
-            <div id="offersContainer">
-                <!-- Sınaq üçün daxil edilən təkliflər bura düşəcək -->
+            <!-- ==================== ADMIN: HƏKİM BAZASI ==================== -->
+            <div id="adminDoctorsPage" class="hidden">
+                <div class="mobile-admin-nav" style="grid-template-columns:1fr;"><button style="background:var(--secondary);" onclick="switchAdminPage('adminPanel')">⬅️ Dashboard-a Qayıt</button></div>
+                <div class="card">
+                    <h3>👨‍⚕️ Həkim Bazası & Ziyarət Planı</h3>
+                    <p style="font-size:11px; color:var(--gray); margin-top:0;">Sinif ziyarət tezliyini müəyyən edir: <b>A</b> = 7 gündə bir, <b>B</b> = 15 gündə bir, <b>C</b> = 30 gündə bir.</p>
+                    <div id="doctorsListBox"></div>
+                </div>
             </div>
+
+            <!-- ==================== ADMIN: APTEK BAZASI ==================== -->
+            <div id="adminPharmaciesPage" class="hidden">
+                <div class="mobile-admin-nav" style="grid-template-columns:1fr;"><button style="background:var(--secondary);" onclick="switchAdminPage('adminPanel')">⬅️ Dashboard-a Qayıt</button></div>
+                <div class="card">
+                    <h3>🏪 Aptek Bazası & Nisyə Yaşlanması</h3>
+                    <p style="font-size:11px; color:var(--gray); margin-top:0;">🟢 0-30 gün &nbsp; 🟠 31-60 gün &nbsp; 🔴 60+ gün (riskli borc)</p>
+                    <div id="pharmaciesListBox"></div>
+                </div>
+            </div>
+
+            <!-- ==================== ADMIN: BONUS TƏSDİQLƏRİ ==================== -->
+            <div id="adminApprovalsPage" class="hidden">
+                <div class="mobile-admin-nav" style="grid-template-columns:1fr;"><button style="background:var(--secondary);" onclick="switchAdminPage('adminPanel')">⬅️ Dashboard-a Qayıt</button></div>
+                <div class="card">
+                    <h3>✅ Həkim Bonus Ödənişləri - Təsdiq</h3>
+                    <p style="font-size:11px; color:var(--gray); margin-top:0;">İşçilər "həkimə bonusdan pul verdim" dediyi əməliyyatlar burada gözləyir. Rədd etsəniz, məbləğ işçiyə geri qaytarılır.</p>
+                    <div id="approvalsListBox"></div>
+                </div>
+            </div>
+
+            <!-- ==================== ADMIN: TRANSFER & İŞÇİ DƏYİŞİKLİYİ ==================== -->
+            <div id="adminTransferPage" class="hidden">
+                <div class="mobile-admin-nav" style="grid-template-columns:1fr;"><button style="background:var(--secondary);" onclick="switchAdminPage('adminPanel')">⬅️ Dashboard-a Qayıt</button></div>
+                <div class="card" style="background: #e8f5e9; border: 1px solid var(--primary);">
+                    <h3>🔄 İşçiyə Mal və Bonus (Büdcə) Verilməsi</h3>
+                    <label>Hansı İşçiyə Verilir?</label>
+                    <select id="transferAgentSelect"></select>
+                    <label>Məhsul:</label>
+                    <select id="transferDrugSelect"></select>
+                    <label>Miqdar (Qutu):</label>
+                    <input type="number" id="transferQty" value="10" min="1">
+                    <label>İşçiyə Verilən Bonus / Nümayəndə Büdcəsi (AZN):</label>
+                    <input type="number" id="transferBonusBudget" value="100" min="0">
+                    <button style="background: var(--primary);" onclick="transferStockAndBudgetToAgent()">📥 İşçinin Çantasına Mal & Bonus Artır</button>
+                </div>
+
+                <div class="card" style="background: #fce4ec; border: 1px solid #f48fb1;">
+                    <h3>🔁 İşçi Dəyişikliyi (Bilik Transferi)</h3>
+                    <p style="font-size:11px; color:#880e4f; margin-top:-5px;">İşçi çıxdıqda, onun bütün həkim/aptek tarixçəsini yeni işçiyə köçürün — heç nə itmir.</p>
+                    <label>Köhnə İşçi (çıxan):</label>
+                    <select id="oldAgentSelect"></select>
+                    <label>Yeni İşçi (əvəzedici):</label>
+                    <select id="newAgentSelect"></select>
+                    <label style="display:flex; align-items:center; gap:6px; text-transform:none; font-size:12px;">
+                        <input type="checkbox" id="transferStockToo" style="width:auto; margin:0;"> Qalan stok və büdcəni də köçür
+                    </label>
+                    <button style="background:#ad1457;" onclick="reassignAgent()">🔁 Bütün Həkim/Apotekləri Köçür</button>
+                </div>
+
+                <div class="card">
+                    <h3>💼 İşçi Bonus Büdcələri</h3>
+                    <div id="adminAgentBudgets"></div>
+                </div>
+            </div>
+
+            <!-- ==================== ADMIN: CANLI XƏRİTƏ ==================== -->
+            <div id="adminMapPage" class="hidden">
+                <div class="mobile-admin-nav" style="grid-template-columns:1fr;"><button style="background:var(--secondary);" onclick="switchAdminPage('adminPanel')">⬅️ Dashboard-a Qayıt</button></div>
+                <div class="card">
+                    <h3>🗺️ Bütün İşçilərin Canlı Xəritəsi</h3>
+                    <label>İşçi Seçin:</label>
+                    <select id="adminMapAgentSelect" onchange="renderAdminMapMarkers()"></select>
+                    <div id="adminMap"></div>
+                </div>
+            </div>
+
+            <!-- ==================== ADMIN: TƏNZİMLƏMƏLƏR ==================== -->
+            <div id="adminSettingsPage" class="hidden">
+                <div class="mobile-admin-nav" style="grid-template-columns:1fr;"><button style="background:var(--secondary);" onclick="switchAdminPage('adminPanel')">⬅️ Dashboard-a Qayıt</button></div>
+                <div class="card" style="border: 2px solid #f57c00; background: #fffde7;">
+                    <h3 style="color: #e65100;">💊 Məhsul Kataloqu (Yeni Dərman Əlavə Et)</h3>
+                    <label>Dərmanın Adı:</label>
+                    <input type="text" id="newDrugNameInput" placeholder="Məsələn: Golden Omega3 n60">
+                    <label>Satış Qiyməti (AZN):</label>
+                    <input type="number" id="newDrugPriceInput" placeholder="25">
+                    <label>Bonus Məbləği (AZN):</label>
+                    <input type="number" id="newDrugBonusInput" placeholder="4">
+                    <label>Tərkibi və Təlimatı:</label>
+                    <textarea id="newDrugDescInput" rows="2" placeholder="Tərkibi: ... Göstərişlər: ..."></textarea>
+                    <button type="button" style="background: #f57c00;" onclick="addNewProductToDB()">➕ Sistemə Əlavə Et</button>
+                    <div id="existingProductsAdminList" style="margin-top:12px;"></div>
+                </div>
+
+                <div class="card" style="border: 2px solid #0288d1; background: #e1f5fe;">
+                    <h3 style="color: #01579b;">👥 İşçi və Admin Şifrələri</h3>
+                    <div id="agentsPasswordList"></div>
+                </div>
+            </div>
+
+            <!-- ==================== İŞÇİ PANELİ (SADƏ, MOBİL) ==================== -->
+            <div id="agentPanel" class="hidden">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div class="badge" id="agentBadge" style="margin:0;">👤 İşçi Paneli</div>
+                    <button style="width: auto; margin: 0; padding: 6px 10px; font-size: 11px; background: #0277bd;" onclick="openAgentReportModal()">📊 Mənim Hesabatım</button>
+                </div>
+
+                <div class="card" style="background: #e8f5e9; border-color: #c8e6c9; margin-top: 10px;">
+                    <label style="color: var(--primary);">📅 İş Gününü Seçin:</label>
+                    <input type="date" id="workDate">
+                </div>
+
+                <div class="card" style="border: 2px solid #0277bd; background: #e1f5fe;">
+                    <h3>🏪 Aptek Stoku & Nağdlaşdırma</h3>
+                    <label>Rayon / Şəhər Seçin:</label>
+                    <select id="stockRegionSelect" onchange="populateStockPharmacies()"><option value="">-- Rayon Seçin --</option></select>
+                    <label>Aptek Seçin:</label>
+                    <select id="stockPharmacySelect" onchange="showPharmacyStockDetails()"><option value="">-- Əvvəlcə rayon seçin --</option></select>
+                    <div id="pharmacyStockDetailView" class="hidden" style="margin-top: 10px; background: #fff; padding: 10px; border-radius: 6px; border: 1px solid #b3e5fc;">
+                        <div id="pharmacyStockListContent"></div>
+                        <label style="margin-top: 10px;">Əməliyyat Seçin:</label>
+                        <select id="pharmacyOpType">
+                            <option value="nagdlashdirma_serbest">Nağdlaşdırma - Aptekin Sərbəst Satışı (Bonuslu)</option>
+                            <option value="nagdlashdirma_resept">Nağdlaşdırma - Həkim Ressepti ilə (Bonussuz)</option>
+                            <option value="elave_nisye">Əlavə Nisyə Mal Ver</option>
+                        </select>
+                        <label>Məhsul:</label>
+                        <select id="pharmacyStockDrug"></select>
+                        <label>Miqdar (Qutu):</label>
+                        <input type="number" id="pharmacyStockQty" value="1" min="1">
+                        <button type="button" style="background: #0277bd;" onclick="executePharmacyStockOp()">Təsdiq Et & Qeydə Al</button>
+                        <button type="button" style="background: #00838f; margin-top:8px;" onclick="openPharmacyNavModal()">🚗 Yol Tərifi Al (Naviqasiya)</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🎒 Çantamdakı Dərman Stoku & Qalan Bonus Büdcəm</h3>
+                    <div id="stockList"></div>
+                    <div id="agentBudgetDisplay" style="margin-top: 10px; font-weight: bold; color: var(--primary); font-size: 13px; background: #e8f5e9; padding: 8px; border-radius: 6px; text-align: center;"></div>
+                </div>
+
+                <div class="card" style="border: 2px solid var(--secondary); background: #f1f8e9;">
+                    <h3>📝 Yeni Ziyarət Formu</h3>
+                    <label>Rayon / Şəhər:</label>
+                    <select id="regionSelect"></select>
+                    <label>Ziyarət Növü:</label>
+                    <select id="visitType" onchange="toggleVisitFields()">
+                        <option value="hekim">Həkim Ziyarəti</option>
+                        <option value="yeni_aptek">Yeni Aptek (İlk Qeydiyyat)</option>
+                    </select>
+
+                    <div id="hekimFields">
+                        <label>Mövcud Həkim (varsa seçin):</label>
+                        <select id="existingDoctorSelect" onchange="fillExistingDoctor()"><option value="">-- Yeni Həkim --</option></select>
+                        <label>Həkimin Adı və Soyadı:</label>
+                        <input type="text" id="doctorName" placeholder="Dr. Elçin Məmmədov">
+                        <label>Əlaqə Nömrəsi:</label>
+                        <input type="text" id="doctorPhone" placeholder="050-000-00-00">
+                        <label>Ressept Razılığı:</label>
+                        <select id="doctorAgreement" onchange="toggleDoctorAgreement()">
+                            <option value="Razılaşdı">Razılaşdı (Resseptə yazır)</option>
+                            <option value="Razılaşmadı">Razılaşmadı</option>
+                        </select>
+                        <div id="doctorAdvanceBox" style="margin-top: 8px; padding: 8px; background: #fff; border-radius: 6px; border: 1px dashed #b0bec5;">
+                            <label>Həkimə Bonus Büdcəsindən Pul Verildimi?</label>
+                            <select id="doctorAdvanceCheck" onchange="toggleDoctorAdvanceInput()">
+                                <option value="xeyr">Xeyr</option><option value="beli">Bəli</option>
+                            </select>
+                            <div id="doctorAdvanceAmountBox" class="hidden" style="margin-top: 6px;">
+                                <label>Verilən Məbləğ (AZN):</label>
+                                <input type="number" id="doctorAdvanceAmount" value="0" min="0">
+                                <p style="font-size:10px; color:var(--gray); margin:4px 0 0;">ℹ️ Bu ödəniş admin təsdiqinə göndəriləcək.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="yeniAptekFields" class="hidden">
+                        <label>Aptekin Adı:</label>
+                        <input type="text" id="newPharmacyName" placeholder="Zəfər Aptek">
+                        <label>Müdirin Adı Soyadı:</label>
+                        <input type="text" id="newManagerName" placeholder="Rəşad müəllim">
+                        <label>Əlaqə Nömrəsi:</label>
+                        <input type="text" id="newManagerPhone" placeholder="055-000-00-00">
+                        <label>Satış Növü:</label>
+                        <select id="newSaleType"><option value="nisye">Nisyə Ver</option><option value="nagd">Nağd Sat</option></select>
+                        <div style="margin-top: 6px; padding: 8px; background: #fff; border: 1px dashed #b0bec5; border-radius: 6px;">
+                            <label>Məhsul:</label>
+                            <select id="newDrugSelect"></select>
+                            <label>Miqdar (Qutu):</label>
+                            <input type="number" id="newDrugQty" value="1" min="1">
+                            <button type="button" style="background:#0277bd; margin-top:6px; padding:8px;" onclick="addNewPharmacyItem()">➕ Səbətə Əlavə Et</button>
+                        </div>
+                        <div id="newCartList" style="margin-top:6px;"></div>
+                    </div>
+
+                    <button onclick="submitVisit()">📍 Check-in Et & Tamamla</button>
+                </div>
+
+                <div class="card">
+                    <h3>🔍 Ərazi Xəritəsi və Obyektlər</h3>
+                    <div id="map"></div>
+                </div>
+
+                <button class="logout-btn" onclick="logout()">Çıxış Et</button>
+            </div>
+
+            <!-- MODALLAR -->
+            <div id="productDetailModal" class="fullscreen-modal hidden">
+                <div class="modal-content">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <h3 id="pModalTitle" style="margin: 0; color: var(--primary);"></h3>
+                        <button style="width: auto; margin: 0; padding: 4px 8px; font-size: 11px; background: #d32f2f;" onclick="closeProductModal()">Bağla</button>
+                    </div>
+                    <div id="pModalBody" style="font-size: 12px; line-height: 1.5; color: #37474f;"></div>
+                </div>
+            </div>
+
+            <div id="agentReportModal" class="fullscreen-modal hidden">
+                <div class="modal-content">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <h3 style="margin: 0; color: var(--primary);">📊 Mənim Günlük Hesabatım</h3>
+                        <button style="width: auto; margin: 0; padding: 4px 8px; font-size: 11px; background: #d32f2f;" onclick="closeAgentReportModal()">Bağla</button>
+                    </div>
+                    <div id="agentReportContent"></div>
+                </div>
+            </div>
+
+            <div id="navChoiceModal" class="fullscreen-modal hidden">
+                <div class="modal-content" style="text-align: center; max-width: 320px;">
+                    <h3 style="margin-top:0;">🗺️ Naviqasiya Seçin</h3>
+                    <a id="gmapsLinkBtn" href="#" target="_blank" class="nav-choice-btn" style="background: #4285F4;" onclick="closeNavChoiceModal()">🗺️ Google Maps ilə Aç</a>
+                    <a id="wazeLinkBtn" href="#" target="_blank" class="nav-choice-btn" style="background: #33CCFF;" onclick="closeNavChoiceModal()">🚗 Waze ilə Aç</a>
+                    <button style="background: #78909c; margin-top: 14px;" onclick="closeNavChoiceModal()">Bağla</button>
+                </div>
+            </div>
+
         </div>
     </div>
-
-    <!-- 2. MAĞAZA PANELİ (SIMULATION SƏHİFƏSİ) -->
-    <div id="merchantView" style="display: none;">
-        <div class="form-title" style="color:var(--accent);">🏬 MAĞAZA TƏKLİF FORMU (#SORĞU-104)</div>
-        
-        <div style="background:#f1f5f9; padding:12px; border-radius:8px; margin-bottom:15px; font-size:13px;">
-            <strong>Müştərinin Sorğusu:</strong><br>
-            🚗 Ford Escape (2018) 1.5L<br>
-            🛠 Alışdırma Şamları (Denso Iridium)<br>
-            🔢 VIN: 1FA6P8CF0J...
-        </div>
-
-        <form onsubmit="handleMerchantSubmit(event)">
-            <div class="form-group">
-                <label>Mağazanızın Adı *</label>
-                <input type="text" id="storeName" placeholder="Məs: Avtobest (Maarif)" required>
-            </div>
-
-            <div class="grid-2">
-                <div class="form-group">
-                    <label>Təklif Etdiyiniz Qiymət (AZN) *</label>
-                    <input type="number" id="offerPrice" placeholder="Məs: 35" required>
-                </div>
-                <div class="form-group">
-                    <label>Durum / Firma *</label>
-                    <select id="offerBrand">
-                        <option value="Orijinal (Denso)">Orijinal (Denso)</option>
-                        <option value="Firma (AFT)">Firma (AFT)</option>
-                        <option value="İşlənmiş (Ölüxana)">İşlənmiş (Ölüxana)</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Çatdırılma Şərti</label>
-                <input type="text" id="offerDelivery" placeholder="Məs: 30 dəqiqəyə usta sexinə">
-            </div>
-
-            <button type="submit" class="btn-submit" style="background:var(--blue);">Təklifi Müştəriyə Göndər</button>
-        </form>
-    </div>
-
 </div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-    const autoData = {
-        "Mercedes-Benz": {
-            "C-Class (C300, C250)": { years: [2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020], engines: ["1.8 L", "2.0 L Turbo", "3.5 L V6"] },
-            "E-Class (E200, E300, E350)": { years: [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018], engines: ["2.0 L Turbo", "3.0 L", "3.5 L V6"] }
-        },
-        "Ford": {
-            "Escape": { years: [2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020], engines: ["1.5 L EcoBoost", "1.6 L EcoBoost", "2.0 L EcoBoost", "2.5 L Atmosfer"] },
-            "Fusion": { years: [2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020], engines: ["1.5 L EcoBoost", "2.0 L EcoBoost", "2.5 L Atmosfer", "2.0 L Hybrid"] }
-        },
-        "Hyundai": {
-            "Elantra": { years: [2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020], engines: ["1.6 L", "1.8 L", "2.0 L"] }
-        },
-        "Kia": {
-            "Optima": { years: [2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020], engines: ["1.6 L Turbo", "2.0 L", "2.4 L"] }
-        },
-        "Toyota": {
-            "Camry": { years: [2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020], engines: ["2.5 L Atmosfer", "2.5 L Hybrid", "3.5 L V6"] }
+/* ============================================================
+   TEST REJİMİ: Bütün məlumat lokal yaddaşdadır (Firebase yoxdur).
+   Hazır olanda bu blok Firestore ilə əvəz olunacaq — funksiyaların
+   adları və interfeysi eyni saxlanılıb ki, keçid asan olsun.
+   ============================================================ */
+
+const DEFAULT_PRODUCTS = {
+    "Golden Biotin n60": { price: 28, bonus: 5, desc: "Tərkibi: Biotin 5000 mcg.<br><b>Göstərişlər:</b> Saç tökülməsi, dırnaq kövrəkliyi, dəri yenilənməsi.<br><b>İstifadə qaydası:</b> Gündə 1 dəfə 1 kapsul bol su ilə içilir." },
+    "Golden Bromelain n30": { price: 23, bonus: 4, desc: "Tərkibi: Ananas ekstraktı Bromelain 500 mg.<br><b>Göstərişlər:</b> Həzm sisteminin yaxşılaşdırılması, ödem və iltihabın azaldılması.<br><b>İstifadə qaydası:</b> Yeməkdən əvvəl 1 kapsul." },
+    "Golden Curcuma n30": { price: 21, bonus: 4, desc: "Tərkibi: Zərdəçal ekstraktı (Curcumin).<br><b>Göstərişlər:</b> Antioksidant, oynaqlarda iltihabəleyhinə təsir.<br><b>İstifadə qaydası:</b> Gündə 1 kapsul." },
+    "Golden Hepanox n30": { price: 23, bonus: 4, desc: "Tərkibi: Alabəzək qanqal ekstraktı, Enginar, L-Karnitin.<br><b>Göstərişlər:</b> Qaraciyər hüceyrələrinin bərpası, detoksifikasiya.<br><b>İstifadə qaydası:</b> Gün ərzində 1-2 kapsul." },
+    "Golden Iron n60": { price: 26, bonus: 5, desc: "Tərkibi: Dəmir Bisqlisinat 28 mg + C vitamini, Folik turşusu.<br><b>Göstərişlər:</b> Anemiyanın müalicə və profilaktikası.<br><b>İstifadə qaydası:</b> Gündə 1 kapsul." },
+    "Golden Immunix n30": { price: 23, bonus: 4, desc: "Tərkibi: Ekineziya, Selen, C və D3 Vitamini, Sink.<br><b>Göstərişlər:</b> İmmunitetin gücləndirilməsi.<br><b>İstifadə qaydası:</b> Gündə 1 kapsul." },
+    "Golden 5HTP n30": { price: 21, bonus: 4, desc: "Tərkibi: 5-Hydroxytryptophan 100 mg.<br><b>Göstərişlər:</b> Yuxu rejimi, stres və təşvişin azaldılması.<br><b>İstifadə qaydası:</b> Yatmazdan 30 dəq əvvəl 1 kapsul." },
+    "Golden Iodium 15 ml": { price: 14, bonus: 2.5, desc: "Tərkibi: Bioaktiv Organik Yod damcı.<br><b>Göstərişlər:</b> Qalxanvari vəz funksiyasının dəstəklənməsi.<br><b>İstifadə qaydası:</b> Hər gün 3-5 damcı suya qatılaraq içilir." },
+    "Golden Glutathione n30": { price: 23, bonus: 4, desc: "Tərkibi: L-Glutathione 500 mg.<br><b>Göstərişlər:</b> Hüceyrə cavanlaşması, qaraciyər detoksu, dəri ləkələrinin azaldılması.<br><b>İstifadə qaydası:</b> Gündə 1 kapsul." }
+};
+
+let agentRegions = {
+    "Quluzadə Orxan": ["Yasamal", "Binəqədi", "Nəsimi", "Xəzər", "Suraxanı"],
+    "Xamıyev Hüseyn": ["Xətai", "Nizami", "Nərimanov", "Səbail"],
+    "İşçi 3": ["Şəki", "Qəbələ"], "İşçi 4": ["Lənkəran", "Astara"], "İşçi 5": ["Quba", "Xaçmaz"],
+    "İşçi 6": ["Sumqayıt", "Abşeron"], "İşçi 7": ["Bakı Mərkəz"]
+};
+const DEFAULT_STOCKS = {
+    "Quluzadə Orxan": [15, 20, 10, 15, 12, 10, 14, 10, 12], "Xamıyev Hüseyn": [15, 20, 10, 15, 12, 10, 14, 10, 12],
+    "İşçi 3": [10, 15, 8, 10, 12, 10, 14, 9, 11], "İşçi 4": [10, 15, 8, 10, 12, 10, 14, 9, 11],
+    "İşçi 5": [10, 15, 8, 10, 12, 10, 14, 9, 11], "İşçi 6": [10, 15, 8, 10, 12, 10, 14, 9, 11],
+    "İşçi 7": [15, 20, 10, 15, 12, 10, 14, 10, 12]
+};
+const DEFAULT_BUDGETS = { "Quluzadə Orxan": 200, "Xamıyev Hüseyn": 150, "İşçi 3": 100, "İşçi 4": 100, "İşçi 5": 100, "İşçi 6": 100, "İşçi 7": 100 };
+// Şifrələr — bütün istifadəçilər üçün eyni qalıb (admin: 123, işçilər: 1-7)
+const DEFAULT_PASSWORDS = { admin: "123", "Quluzadə Orxan": "1", "Xamıyev Hüseyn": "2", "İşçi 3": "3", "İşçi 4": "4", "İşçi 5": "5", "İşçi 6": "6", "İşçi 7": "7" };
+
+const CLASS_FREQUENCY_DAYS = { A: 7, B: 15, C: 30 };
+const GEOFENCE_METERS = 150;
+const DEFAULT_DEBT_LIMIT = 500;
+const LOW_STOCK_THRESHOLD = 15;
+const MONTH_NAMES_AZ = ["Yan", "Fev", "Mar", "Apr", "May", "İyun", "İyul", "Avq", "Sen", "Okt", "Noy", "Dek"];
+
+/* ============================================================
+   YEREL YADDAŞ (lokal state — Firebase gələndə bu obyektlər
+   Firestore keşi ilə əvəz olunacaq, funksiya adları dəyişməyəcək)
+   ============================================================ */
+let productsDB = JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+let agentPassMap = { ...DEFAULT_PASSWORDS };
+let agentsCache = {}, doctorsCache = {}, pharmaciesCache = {}, visitsCache = {};
+let idCounter = 1;
+function genId(prefix) { return prefix + "_" + (idCounter++) + "_" + Date.now(); }
+
+let currentAgent = "Quluzadə Orxan";
+let currentIsAdmin = false;
+let activeCart = [];
+let selectedNavCoords = { lat: 0, lon: 0 };
+let map = null, adminMap = null;
+let trendChart = null, shareChart = null, agentChart = null;
+
+function todayStr() { return new Date().toISOString().slice(0, 10); }
+function haversineMeters(lat1, lon1, lat2, lon2) {
+    const R = 6371000, toRad = x => x * Math.PI / 180;
+    const dLat = toRad(lat2 - lat1), dLon = toRad(lon2 - lon1);
+    const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon/2)**2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+function daysBetween(d1, d2) { return Math.round((new Date(d2+"T00:00:00") - new Date(d1+"T00:00:00")) / 86400000); }
+
+/* ============================================================
+   İLKİN TOXUMLAMA (lokal)
+   ============================================================ */
+function seedLocalData() {
+    for (let agentName in DEFAULT_STOCKS) {
+        let stocks = {}, keys = Object.keys(DEFAULT_PRODUCTS);
+        DEFAULT_STOCKS[agentName].forEach((q, i) => stocks[keys[i]] = q);
+        agentsCache[agentName] = { stocks, budget: DEFAULT_BUDGETS[agentName] || 0, active: true };
+    }
+}
+
+function refreshCurrentView() {
+    const vis = id => document.getElementById(id) && !document.getElementById(id).classList.contains("hidden");
+    if (vis("adminPanel")) renderDashboard();
+    if (vis("agentPanel")) { updateAgentStockDisplay(); }
+    if (vis("adminRouteReportPage")) filterRouteReport();
+    if (vis("adminStockReportPage")) filterStockReport();
+    if (vis("adminDoctorsPage")) renderDoctorsPage();
+    if (vis("adminPharmaciesPage")) renderPharmaciesPage();
+    if (vis("adminApprovalsPage")) renderApprovalsPage();
+    if (vis("adminTransferPage")) updateAdminAgentBudgets();
+    if (adminMap) renderAdminMapMarkers();
+    updatePendingBadge();
+}
+
+/* ============================================================
+   MƏHSUL KATALOQU (PUBLIC)
+   ============================================================ */
+function renderPublicProducts() {
+    let container = document.getElementById("publicProductsList");
+    if (!container) return;
+    container.innerHTML = "";
+    for (let name in productsDB) {
+        let item = productsDB[name];
+        container.innerHTML += `<div class="product-card" onclick="openProductModal('${name}')"><div class="product-title">${name}</div><div class="product-price">${item.price} ₼ | Bonus: ${item.bonus} ₼</div></div>`;
+    }
+    document.getElementById("loginProductCount").innerText = Object.keys(productsDB).length;
+}
+function openProductModal(name) {
+    let item = productsDB[name]; if (!item) return;
+    document.getElementById("pModalTitle").innerText = "💊 " + name;
+    document.getElementById("pModalBody").innerHTML = item.desc;
+    document.getElementById("productDetailModal").classList.remove("hidden");
+}
+function closeProductModal() { document.getElementById("productDetailModal").classList.add("hidden"); }
+
+function populateLoginUserSelect() {
+    let sel = document.getElementById("userSelect");
+    sel.innerHTML = `<option value="admin">👑 İsmayıl Mirzəzadə (Admin)</option>`;
+    for (let ag in agentRegions) sel.innerHTML += `<option value="${ag}">👤 ${ag} (${agentRegions[ag].join(", ")})</option>`;
+    document.getElementById("loginAgentCount").innerText = Object.keys(agentRegions).length;
+}
+
+function initDropdowns() {
+    [document.getElementById("transferDrugSelect"), document.getElementById("pharmacyStockDrug"), document.getElementById("newDrugSelect")].forEach(sel => {
+        if (!sel) return;
+        sel.innerHTML = "";
+        for (let d in productsDB) sel.innerHTML += `<option value="${d}">${d} (${productsDB[d].price}₼ | Bonus: ${productsDB[d].bonus}₼)</option>`;
+    });
+    let agentListSelects = [
+        { el: document.getElementById("transferAgentSelect"), filter: false },
+        { el: document.getElementById("oldAgentSelect"), filter: false },
+        { el: document.getElementById("newAgentSelect"), filter: false },
+        { el: document.getElementById("adminMapAgentSelect"), filter: true, allLabel: "Bütün İşçilər" },
+        { el: document.getElementById("filterRouteAgent"), filter: true, allLabel: "Bütün İşçilər" },
+        { el: document.getElementById("filterStockAgent"), filter: true, allLabel: "Bütün İşçilər" }
+    ];
+    agentListSelects.forEach(({ el, filter, allLabel }) => {
+        if (!el) return;
+        el.innerHTML = filter ? `<option value="all">${allLabel}</option>` : "";
+        for (let ag in agentRegions) el.innerHTML += `<option value="${ag}">${ag}</option>`;
+    });
+}
+
+/* ============================================================
+   GİRİŞ / ÇIXIŞ
+   ============================================================ */
+function login() {
+    let val = document.getElementById("userSelect").value;
+    let pass = document.getElementById("loginPassword").value;
+
+    if (val === "admin") {
+        if (pass !== (agentPassMap.admin || "123")) { alert("Yanlış şifrə!"); return; }
+        currentIsAdmin = true;
+        document.getElementById("loginScreen").classList.add("hidden");
+        document.getElementById("adminPanel").classList.remove("hidden");
+        document.getElementById("bodyEl").classList.add("admin-desktop");
+        setActiveSidebar("adminPanel");
+        initDropdowns();
+        renderDashboard();
+        setTimeout(() => { initAdminMap(); }, 200);
+    } else {
+        let expectedPass = agentPassMap[val] || val.replace("İşçi ", "");
+        if (pass !== expectedPass) { alert("Yanlış şifrə!"); return; }
+        currentIsAdmin = false; currentAgent = val;
+        document.getElementById("loginScreen").classList.add("hidden");
+        document.getElementById("agentPanel").classList.remove("hidden");
+        document.getElementById("agentBadge").innerText = "👤 " + currentAgent;
+        document.getElementById("workDate").value = todayStr();
+        initDropdowns(); updateAgentStockDisplay(); setupAgentRegions(); populateExistingDoctors();
+        setTimeout(() => { initUserMap(); }, 200);
+    }
+}
+function logout() {
+    ["adminPanel","adminRouteReportPage","adminStockReportPage","adminDoctorsPage","adminPharmaciesPage","adminApprovalsPage","adminTransferPage","adminMapPage","adminSettingsPage","agentPanel"]
+        .forEach(id => document.getElementById(id).classList.add("hidden"));
+    document.getElementById("bodyEl").classList.remove("admin-desktop");
+    document.getElementById("loginScreen").classList.remove("hidden");
+    document.getElementById("loginPassword").value = "";
+}
+
+/* ============================================================
+   ADMIN SƏHİFƏ NAVİQASİYASI (sidebar + mobil düymələr eyni funksiyanı çağırır)
+   ============================================================ */
+const ADMIN_PAGES = ["adminPanel","adminRouteReportPage","adminStockReportPage","adminDoctorsPage","adminPharmaciesPage","adminApprovalsPage","adminTransferPage","adminMapPage","adminSettingsPage"];
+function setActiveSidebar(pageId) {
+    document.querySelectorAll("#sidebarMenu a").forEach(a => a.classList.toggle("active", a.dataset.page === pageId));
+}
+function switchAdminPage(pageId) {
+    ADMIN_PAGES.forEach(id => document.getElementById(id).classList.add("hidden"));
+    document.getElementById(pageId).classList.remove("hidden");
+    setActiveSidebar(pageId);
+    window.scrollTo(0, 0);
+
+    if (pageId === "adminPanel") renderDashboard();
+    if (pageId === "adminRouteReportPage") { document.getElementById("filterRouteDate").value = todayStr(); filterRouteReport(); }
+    if (pageId === "adminStockReportPage") { document.getElementById("filterStockDate").value = todayStr(); filterStockReport(); }
+    if (pageId === "adminDoctorsPage") renderDoctorsPage();
+    if (pageId === "adminPharmaciesPage") renderPharmaciesPage();
+    if (pageId === "adminApprovalsPage") renderApprovalsPage();
+    if (pageId === "adminTransferPage") updateAdminAgentBudgets();
+    if (pageId === "adminMapPage") setTimeout(() => { initAdminMap(); }, 150);
+    if (pageId === "adminSettingsPage") renderSettingsPage();
+}
+
+/* ============================================================
+   İŞÇİ PANELİ: STOK / REGİON
+   ============================================================ */
+function updateAgentStockDisplay() {
+    let agentData = agentsCache[currentAgent] || { stocks: {}, budget: 0 };
+    let container = document.getElementById("stockList");
+    if (!container) return;
+    container.innerHTML = "";
+    for (let d in productsDB) {
+        let qty = (agentData.stocks && agentData.stocks[d] !== undefined) ? agentData.stocks[d] : 0;
+        container.innerHTML += `<div class="stock-item"><span>${d}</span> <strong>${qty} qutu</strong></div>`;
+    }
+    document.getElementById("agentBudgetDisplay").innerHTML = `💰 Qalan Bonus Büdcəniz: ${(agentData.budget || 0)} ₼`;
+}
+function setupAgentRegions() {
+    let regions = agentRegions[currentAgent] || [];
+    let regSelect = document.getElementById("regionSelect"), stockRegSelect = document.getElementById("stockRegionSelect");
+    regSelect.innerHTML = ""; stockRegSelect.innerHTML = `<option value="">-- Rayon Seçin --</option>`;
+    regions.forEach(r => { regSelect.innerHTML += `<option value="${r}">${r}</option>`; stockRegSelect.innerHTML += `<option value="${r}">${r}</option>`; });
+}
+function populateExistingDoctors() {
+    let sel = document.getElementById("existingDoctorSelect"); if (!sel) return;
+    sel.innerHTML = `<option value="">-- Yeni Həkim --</option>`;
+    Object.values(doctorsCache).filter(d => d.agent === currentAgent).forEach(d => sel.innerHTML += `<option value="${d.id}">${d.name} (${d.class || "B"} sinif)</option>`);
+}
+function fillExistingDoctor() {
+    let id = document.getElementById("existingDoctorSelect").value; if (!id) return;
+    let d = doctorsCache[id]; if (!d) return;
+    document.getElementById("doctorName").value = d.name;
+    document.getElementById("doctorPhone").value = d.phone || "";
+}
+
+/* ============================================================
+   ADMIN: TRANSFER (STOK/BÜDCƏ) & İŞÇİ DƏYİŞİKLİYİ
+   ============================================================ */
+function updateAdminAgentBudgets() {
+    let container = document.getElementById("adminAgentBudgets"); if (!container) return;
+    let html = "";
+    for (let ag in agentRegions) {
+        let a = agentsCache[ag] || { budget: 0 };
+        html += `<div class="stock-item"><span>${ag}</span> <strong>${a.budget || 0} ₼</strong></div>`;
+    }
+    container.innerHTML = html;
+}
+function transferStockAndBudgetToAgent() {
+    let targetAgent = document.getElementById("transferAgentSelect").value;
+    let drugName = document.getElementById("transferDrugSelect").value;
+    let qty = parseInt(document.getElementById("transferQty").value) || 0;
+    let addBudget = parseFloat(document.getElementById("transferBonusBudget").value) || 0;
+    let a = agentsCache[targetAgent];
+    a.stocks[drugName] = (a.stocks[drugName] || 0) + qty;
+    a.budget = (a.budget || 0) + addBudget;
+    renderDashboard(); updateAdminAgentBudgets();
+    alert(`Uğurlu Transfer!\n${targetAgent} işçisinə ${qty} qutu ${drugName} və ${addBudget} ₼ bonus büdcəsi əlavə olundu.`);
+}
+function reassignAgent() {
+    let oldAgent = document.getElementById("oldAgentSelect").value;
+    let newAgent = document.getElementById("newAgentSelect").value;
+    let alsoStock = document.getElementById("transferStockToo").checked;
+    if (oldAgent === newAgent) { alert("Köhnə və yeni işçi eyni ola bilməz!"); return; }
+    if (!confirm(`${oldAgent} işçisinin BÜTÜN həkim/aptek tarixçəsi ${newAgent} işçisinə köçürülsün?`)) return;
+
+    let movedDoctors = 0, movedPharmacies = 0;
+    Object.values(doctorsCache).filter(d => d.agent === oldAgent).forEach(d => { d.agent = newAgent; movedDoctors++; });
+    Object.values(pharmaciesCache).filter(p => p.agent === oldAgent).forEach(p => { p.agent = newAgent; movedPharmacies++; });
+
+    if (alsoStock && agentsCache[oldAgent] && agentsCache[newAgent]) {
+        let oldStocks = agentsCache[oldAgent].stocks || {};
+        for (let d in oldStocks) agentsCache[newAgent].stocks[d] = (agentsCache[newAgent].stocks[d] || 0) + (oldStocks[d] || 0);
+        agentsCache[newAgent].budget = (agentsCache[newAgent].budget || 0) + (agentsCache[oldAgent].budget || 0);
+        for (let d in oldStocks) agentsCache[oldAgent].stocks[d] = 0;
+        agentsCache[oldAgent].budget = 0;
+    }
+    refreshCurrentView();
+    alert(`Tamamlandı!\n${movedDoctors} həkim və ${movedPharmacies} aptek ${newAgent} işçisinə köçürüldü.${alsoStock ? "\nQalan stok/büdcə də köçürüldü." : ""}`);
+}
+
+/* ============================================================
+   İŞÇİ: APTEK STOKU / NAĞDLAŞDIRMA / ƏLAVƏ NİSYƏ
+   ============================================================ */
+function populateStockPharmacies() {
+    let reg = document.getElementById("stockRegionSelect").value;
+    let pharmSelect = document.getElementById("stockPharmacySelect");
+    pharmSelect.innerHTML = `<option value="">-- Aptek Seçin --</option>`;
+    document.getElementById("pharmacyStockDetailView").classList.add("hidden");
+    if (!reg) return;
+    Object.values(pharmaciesCache).filter(p => p.region === reg && p.agent === currentAgent).forEach(p => pharmSelect.innerHTML += `<option value="${p.id}">${p.name}</option>`);
+}
+function showPharmacyStockDetails() {
+    let pId = document.getElementById("stockPharmacySelect").value;
+    let detailView = document.getElementById("pharmacyStockDetailView"), contentDiv = document.getElementById("pharmacyStockListContent");
+    if (!pId) { detailView.classList.add("hidden"); return; }
+    let pData = pharmaciesCache[pId]; if (!pData) { detailView.classList.add("hidden"); return; }
+    selectedNavCoords = { lat: pData.lat, lon: pData.lon };
+    let debts = pData.debts || [], byDrug = {};
+    debts.forEach(x => byDrug[x.drug] = (byDrug[x.drug] || 0) + x.qty);
+    let debtValue = debts.reduce((sum, x) => sum + x.qty * (productsDB[x.drug] ? productsDB[x.drug].price : 0), 0);
+    let limit = pData.debtLimit || DEFAULT_DEBT_LIMIT;
+    let text = `<b>📦 ${pData.name} - Mövcud Nisyə Mallar (Gözləmədə):</b><br>`, hasStock = false;
+    for (let d in byDrug) if (byDrug[d] > 0) { text += `- ${d}: <b>${byDrug[d]} qutu</b><br>`; hasStock = true; }
+    if (!hasStock) text += `<i>Bu aptekdə hazırda nisyə mal yoxdur.</i>`;
+    text += `<div style="margin-top:6px; font-size:11px; color:${debtValue >= limit ? '#c62828' : '#37474f'};">💳 Kredit limiti: <b>${debtValue.toFixed(2)} ₼ / ${limit} ₼</b></div>`;
+    contentDiv.innerHTML = text; detailView.classList.remove("hidden");
+}
+function executePharmacyStockOp() {
+    let pId = document.getElementById("stockPharmacySelect").value;
+    let opType = document.getElementById("pharmacyOpType").value;
+    let drug = document.getElementById("pharmacyStockDrug").value;
+    let qty = parseInt(document.getElementById("pharmacyStockQty").value) || 0;
+    let selectedDate = document.getElementById("workDate").value;
+    let fullDateTime = `${selectedDate} ${new Date().toLocaleTimeString()}`;
+    if (!pId || qty <= 0) { alert("Məlumatları düzgün daxil edin!"); return; }
+
+    let pData = pharmaciesCache[pId], pInfo = productsDB[drug], debts = [...(pData.debts || [])];
+
+    if (opType === 'nagdlashdirma_serbest' || opType === 'nagdlashdirma_resept') {
+        let currentDebt = debts.filter(x => x.drug === drug).reduce((s, x) => s + x.qty, 0);
+        if (currentDebt < qty) { alert(`Bu aptekdə nisyə gözləmədə cəmi ${currentDebt} qutu ${drug} var!`); return; }
+        let remaining = qty;
+        debts.sort((a, b) => a.dateGiven.localeCompare(b.dateGiven));
+        debts = debts.map(x => { if (x.drug !== drug || remaining <= 0) return x; let take = Math.min(x.qty, remaining); remaining -= take; return { ...x, qty: x.qty - take }; }).filter(x => x.qty > 0);
+
+        let totalAmount = qty * pInfo.price;
+        let bonusAmount = (opType === 'nagdlashdirma_serbest') ? (qty * pInfo.bonus) : 0;
+        let netAmount = totalAmount - bonusAmount;
+        let opLabel = (opType === 'nagdlashdirma_serbest') ? "Nağdlaşdırma (Bonuslu Satış)" : "Nağdlaşdırma (Bonussuz Ressept)";
+        pData.debts = debts;
+        let vid = genId("visit");
+        visitsCache[vid] = { id: vid, date: selectedDate, dateTime: fullDateTime, agent: currentAgent, region: pData.region, obj: pData.name, type: opLabel, drug, qty, totalAmount, bonusAmount, netAmount, doctorPay: 0, isCashSale: true, approvalStatus: "none", gpsFlag: "normal" };
+        alert(`Uğurlu Nağdlaşdırma!\nSaf Net Qazanc: ${netAmount}₼ (Verilən Bonus: ${bonusAmount}₼)`);
+    } else {
+        let agentStockQty = (agentsCache[currentAgent].stocks || {})[drug] || 0;
+        if (agentStockQty < qty) { alert("Çantanda kifayət qədər bu dərmandan yoxdur!"); return; }
+        let newDebtValue = qty * pInfo.price;
+        let existingDebtValue = debts.reduce((s, x) => s + x.qty * (productsDB[x.drug] ? productsDB[x.drug].price : 0), 0);
+        let limit = pData.debtLimit || DEFAULT_DEBT_LIMIT;
+        if (existingDebtValue + newDebtValue > limit) { alert(`⚠️ Kredit limiti aşılır!\nLimit: ${limit}₼\nHazırkı borc: ${existingDebtValue.toFixed(2)}₼\nƏlavə: ${newDebtValue.toFixed(2)}₼\n\nAdmin ilə əlaqə saxlayıb limiti artırın.`); return; }
+        debts.push({ drug, qty, dateGiven: selectedDate });
+        pData.debts = debts;
+        agentsCache[currentAgent].stocks[drug] -= qty;
+        let vid = genId("visit");
+        visitsCache[vid] = { id: vid, date: selectedDate, dateTime: fullDateTime, agent: currentAgent, region: pData.region, obj: pData.name, type: "Əlavə Nisyə (Gözləmədə)", drug, qty, totalAmount: newDebtValue, bonusAmount: 0, netAmount: 0, doctorPay: 0, isCashSale: false, approvalStatus: "none", gpsFlag: "normal" };
+        alert(`Uğurlu Əməliyyat!\n${qty} qutu ${drug} nisyə verildi (gözləmədədir).`);
+    }
+    updateAgentStockDisplay();
+    showPharmacyStockDetails();
+}
+
+/* ============================================================
+   ZİYARƏT FORMU
+   ============================================================ */
+function toggleVisitFields() {
+    let type = document.getElementById("visitType").value;
+    document.getElementById("hekimFields").classList.add("hidden");
+    document.getElementById("yeniAptekFields").classList.add("hidden");
+    if (type === "hekim") document.getElementById("hekimFields").classList.remove("hidden");
+    if (type === "yeni_aptek") document.getElementById("yeniAptekFields").classList.remove("hidden");
+}
+function toggleDoctorAgreement() {
+    let agr = document.getElementById("doctorAgreement").value;
+    document.getElementById("doctorAdvanceBox").classList.toggle("hidden", agr === "Razılaşmadı");
+}
+function toggleDoctorAdvanceInput() {
+    document.getElementById("doctorAdvanceAmountBox").classList.toggle("hidden", document.getElementById("doctorAdvanceCheck").value !== "beli");
+}
+function addNewPharmacyItem() {
+    let drug = document.getElementById("newDrugSelect").value;
+    let qty = parseInt(document.getElementById("newDrugQty").value) || 0;
+    let saleType = document.getElementById("newSaleType").value;
+    if (qty <= 0) { alert("Miqdar düzgün deyil!"); return; }
+    let currentStock = (agentsCache[currentAgent].stocks || {})[drug] || 0;
+    let existingInCart = activeCart.filter(item => item.drug === drug).reduce((sum, item) => sum + item.qty, 0);
+    if (currentStock < (existingInCart + qty)) { alert("Çantanda kifayət qədər bu dərmandan yoxdur!"); return; }
+    let pInfo = productsDB[drug];
+    let totalAmount = qty * pInfo.price;
+    let bonus = (saleType === 'nagd') ? (qty * pInfo.bonus) : 0;
+    let net = (saleType === 'nagd') ? (totalAmount - bonus) : 0;
+    activeCart.push({ drug, qty, mode: saleType, totalAmount, bonusAmount: bonus, netAmount: net });
+    renderNewCart();
+}
+function renderNewCart() {
+    let container = document.getElementById("newCartList"); container.innerHTML = "";
+    activeCart.forEach((item, index) => {
+        let label = `${item.drug} - ${item.qty} qutu (${item.mode === 'nisye' ? 'Nisyə - Gözləmədə' : 'Nağd Satış'})`;
+        container.innerHTML += `<div class="cart-item-row"><span>${label}</span> <button type="button" style="width:auto; margin:0; padding:2px 6px; font-size:10px; background:#c62828;" onclick="removeNewCart(${index})">Sil</button></div>`;
+    });
+}
+function removeNewCart(index) { activeCart.splice(index, 1); renderNewCart(); }
+
+/* ============================================================
+   XƏRİTƏLƏR
+   ============================================================ */
+function initUserMap() {
+    if (map) map.remove();
+    map = L.map('map').setView([40.4093, 49.8671], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+    let allowedRegions = agentRegions[currentAgent] || [];
+    Object.values(doctorsCache).filter(d => allowedRegions.includes(d.region)).forEach(d => {
+        L.marker([d.lat, d.lon]).addTo(map).bindPopup(`<b>[Həkim] ${d.name}</b><br>${d.region}<br><br><a href="#" onclick="openNavDirectModal(${d.lat},${d.lon}); return false;" style="background:#0277bd; color:white; padding:5px 8px; text-decoration:none; border-radius:4px; display:inline-block; font-size:11px; font-weight:bold;">🚗 Yol Tərifi Al</a>`);
+    });
+    Object.values(pharmaciesCache).filter(p => allowedRegions.includes(p.region)).forEach(p => {
+        L.marker([p.lat, p.lon]).addTo(map).bindPopup(`<b>[Aptek] ${p.name}</b><br>${p.region}<br><br><a href="#" onclick="openNavDirectModal(${p.lat},${p.lon}); return false;" style="background:#0277bd; color:white; padding:5px 8px; text-decoration:none; border-radius:4px; display:inline-block; font-size:11px; font-weight:bold;">🚗 Yol Tərifi Al</a>`);
+    });
+}
+function openNavDirectModal(lat, lon) { selectedNavCoords = { lat, lon }; openPharmacyNavModal(); }
+function openPharmacyNavModal() {
+    if (!selectedNavCoords.lat) return;
+    document.getElementById("gmapsLinkBtn").setAttribute("href", `https://www.google.com/maps/search/?api=1&query=${selectedNavCoords.lat},${selectedNavCoords.lon}`);
+    document.getElementById("wazeLinkBtn").setAttribute("href", `https://www.waze.com/ul?ll=${selectedNavCoords.lat},${selectedNavCoords.lon}&navigate=yes`);
+    document.getElementById("navChoiceModal").classList.remove("hidden");
+}
+function closeNavChoiceModal() { document.getElementById("navChoiceModal").classList.add("hidden"); }
+
+function initAdminMap() {
+    if (!document.getElementById("adminMap")) return;
+    if (adminMap) adminMap.remove();
+    adminMap = L.map('adminMap').setView([40.4093, 49.8671], 10);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(adminMap);
+    renderAdminMapMarkers();
+}
+function renderAdminMapMarkers() {
+    if (!adminMap) return;
+    adminMap.eachLayer(l => { if (l instanceof L.Marker) adminMap.removeLayer(l); });
+    let selAgent = (document.getElementById("adminMapAgentSelect") || {}).value || "all";
+    Object.values(doctorsCache).filter(d => selAgent === "all" || d.agent === selAgent).forEach(d => L.marker([d.lat, d.lon]).addTo(adminMap).bindPopup(`<b>[Həkim] ${d.name}</b><br>İşçi: ${d.agent}<br>Rayon: ${d.region}`));
+    Object.values(pharmaciesCache).filter(p => selAgent === "all" || p.agent === selAgent).forEach(p => L.marker([p.lat, p.lon]).addTo(adminMap).bindPopup(`<b>[Aptek] ${p.name}</b><br>İşçi: ${p.agent}<br>Rayon: ${p.region}`));
+}
+
+/* ============================================================
+   ZİYARƏTİN TƏSDİQİ (GPS GEOFENCING İLƏ)
+   ============================================================ */
+function submitVisit() {
+    let selectedDate = document.getElementById("workDate").value;
+    let region = document.getElementById("regionSelect").value;
+    let type = document.getElementById("visitType").value;
+    let fullDateTime = `${selectedDate} ${new Date().toLocaleTimeString()}`;
+    if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+            pos => processVisitWithCoords(pos.coords.latitude, pos.coords.longitude, selectedDate, region, type, fullDateTime, false),
+            () => { alert("GPS məlumatı alına bilmədi. Məkan xidmətini aktivləşdirin. Təxmini koordinat istifadə olunacaq."); processVisitWithCoords(40.4093, 49.8671, selectedDate, region, type, fullDateTime, true); },
+            { enableHighAccuracy: true, timeout: 5000 }
+        );
+    } else { processVisitWithCoords(40.4093, 49.8671, selectedDate, region, type, fullDateTime, true); }
+}
+function processVisitWithCoords(lat, lon, selectedDate, region, type, fullDateTime, isEstimated) {
+    if (type === "hekim") {
+        let docName = document.getElementById("doctorName").value;
+        let existingId = document.getElementById("existingDoctorSelect").value;
+        let agr = document.getElementById("doctorAgreement").value;
+        let advCheck = document.getElementById("doctorAdvanceCheck").value;
+        let advAmt = parseFloat(document.getElementById("doctorAdvanceAmount").value) || 0;
+        if (!docName) { alert("Həkimin adını daxil edin!"); return; }
+
+        let gpsFlag = "normal";
+        let existingDoc = existingId ? doctorsCache[existingId] : null;
+        if (isEstimated) gpsFlag = "təxmini";
+        else if (existingDoc && existingDoc.lat) {
+            let dist = haversineMeters(lat, lon, existingDoc.lat, existingDoc.lon);
+            if (dist > GEOFENCE_METERS) { gpsFlag = "şübhəli"; alert(`⚠️ Diqqət: Cari məkanınız bu həkimin qeydiyyat nöqtəsindən ~${Math.round(dist)} metr uzaqdır. Ziyarət qeydə alınacaq, amma admin panelində işarələnəcək.`); }
+        } else gpsFlag = "ilkin qeydiyyat";
+
+        if (agr === "Razılaşdı" && advCheck === "beli") {
+            let budget = (agentsCache[currentAgent] || {}).budget || 0;
+            if (budget < advAmt) { alert("Bonus büdcənizdə bu qədər məbləğ yoxdur!"); return; }
+            agentsCache[currentAgent].budget -= advAmt;
         }
-    };
+        let visitLabel = `Həkim Ziyarəti (${agr})`;
+        let approvalStatus = (agr === "Razılaşdı" && advCheck === "beli" && advAmt > 0) ? "pending" : "none";
+        let vid = genId("visit");
+        visitsCache[vid] = { id: vid, date: selectedDate, dateTime: fullDateTime, agent: currentAgent, region, obj: docName, type: visitLabel, drug: "-", qty: "-", totalAmount: 0, bonusAmount: 0, netAmount: 0, doctorPay: (agr === "Razılaşdı" && advCheck === "beli") ? advAmt : 0, isCashSale: false, approvalStatus, gpsFlag };
+        if (existingDoc) { existingDoc.lastVisit = selectedDate; existingDoc.phone = document.getElementById("doctorPhone").value || existingDoc.phone || ""; }
+        else { let did = genId("doc"); doctorsCache[did] = { id: did, name: docName, phone: document.getElementById("doctorPhone").value || "", region, agent: currentAgent, class: "B", lastVisit: selectedDate, lat, lon }; }
 
-    function switchTab(tab) {
-        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-        if (tab === 'client') {
-            document.getElementById('clientView').style.display = 'block';
-            document.getElementById('merchantView').style.display = 'none';
-            event.target.classList.add('active');
-        } else {
-            document.getElementById('clientView').style.display = 'none';
-            document.getElementById('merchantView').style.display = 'block';
-            event.target.classList.add('active');
-        }
+        document.getElementById("doctorName").value = ""; document.getElementById("doctorPhone").value = "";
+        document.getElementById("doctorAdvanceAmount").value = "0"; document.getElementById("existingDoctorSelect").value = "";
+        populateExistingDoctors();
+    } else {
+        let objName = document.getElementById("newPharmacyName").value;
+        if (!objName) { alert("Aptekin adını daxil edin!"); return; }
+        if (activeCart.length === 0) { alert("Səbətə məhsul əlavə edin!"); return; }
+
+        let gpsFlag = isEstimated ? "təxmini" : "ilkin qeydiyyat";
+        let newDebts = [];
+        activeCart.forEach(item => { agentsCache[currentAgent].stocks[item.drug] -= item.qty; if (item.mode === 'nisye') newDebts.push({ drug: item.drug, qty: item.qty, dateGiven: selectedDate }); });
+        activeCart.forEach(item => {
+            let vid = genId("visit");
+            visitsCache[vid] = { id: vid, date: selectedDate, dateTime: fullDateTime, agent: currentAgent, region, obj: objName, type: `Yeni Aptek (${item.mode === 'nisye' ? 'Nisyə Gözləmədə' : 'Nağd Satış'})`, drug: item.drug, qty: item.qty, totalAmount: item.totalAmount, bonusAmount: item.bonusAmount, netAmount: item.netAmount, doctorPay: 0, isCashSale: (item.mode === 'nagd'), approvalStatus: "none", gpsFlag };
+        });
+        let pid = genId("pharm");
+        pharmaciesCache[pid] = { id: pid, name: objName, region, agent: currentAgent, lat, lon, debtLimit: DEFAULT_DEBT_LIMIT, debts: newDebts };
+        document.getElementById("newPharmacyName").value = ""; document.getElementById("newManagerName").value = ""; document.getElementById("newManagerPhone").value = "";
+        activeCart = []; document.getElementById("newCartList").innerHTML = "";
     }
+    updateAgentStockDisplay();
+    if (map) initUserMap();
+    alert("Check-in uğurla tamamlandı!");
+}
 
-    function updateModels() {
-        const brand = document.getElementById('brand').value;
-        const modelSelect = document.getElementById('model');
-        modelSelect.innerHTML = '<option value="">Model seçin...</option>';
-        if (brand && autoData[brand]) {
-            modelSelect.disabled = false;
-            Object.keys(autoData[brand]).forEach(m => modelSelect.innerHTML += `<option value="${m}">${m}</option>`);
-        } else { modelSelect.disabled = true; }
+/* ============================================================
+   ADMIN: RUT HESABATI
+   ============================================================ */
+function filterRouteReport() {
+    let selAgent = document.getElementById("filterRouteAgent").value;
+    let selDate = document.getElementById("filterRouteDate").value;
+    let tbody = document.getElementById("routeTableBody"), summaryBox = document.getElementById("routeSummaryBox");
+    tbody.innerHTML = "";
+    let filtered = Object.values(visitsCache).filter(r => (selAgent === "all" || r.agent === selAgent) && r.date === selDate);
+    let grouped = {};
+    filtered.forEach(r => {
+        let key = `${r.dateTime}_${r.agent}_${r.obj}`;
+        if (!grouped[key]) grouped[key] = { dateTime: r.dateTime, agent: r.agent, region: r.region, obj: r.obj, types: [], docPay: 0, itemsSummary: [], gpsFlag: r.gpsFlag };
+        if (!grouped[key].types.includes(r.type)) grouped[key].types.push(r.type);
+        if (r.doctorPay > 0) grouped[key].docPay += r.doctorPay;
+        if (r.drug && r.drug !== "-") grouped[key].itemsSummary.push(`${r.drug} (${r.qty} qut)`);
+        if (r.gpsFlag === "şübhəli") grouped[key].gpsFlag = "şübhəli";
+    });
+    let totalVisitsCount = Object.keys(grouped).length;
+    let newPharmacies = filtered.filter(r => r.type.includes("Yeni Aptek")).length;
+    let doctorsCount = filtered.filter(r => r.type.includes("Həkim")).length;
+    summaryBox.innerHTML = `<div class="stat-box"><div class="stat-num">${totalVisitsCount}</div><div class="stat-label">Ümumi Ziyarət</div></div><div class="stat-box"><div class="stat-num">${newPharmacies}</div><div class="stat-label">Yeni Aptek</div></div><div class="stat-box"><div class="stat-num">${doctorsCount}</div><div class="stat-label">Həkim Ziyarəti</div></div>`;
+    if (Object.keys(grouped).length === 0) { tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#78909c;">Seçilmiş tarixdə məlumat yoxdur.</td></tr>`; return; }
+    for (let key in grouped) {
+        let item = grouped[key];
+        let typeDesc = item.types.join(", "); if (item.itemsSummary.length > 0) typeDesc += ` [${item.itemsSummary.join(", ")}]`;
+        let docPayText = (item.docPay > 0) ? `<b>${item.docPay} ₼</b>` : "-";
+        let gpsIcon = item.gpsFlag === "şübhəli" ? "🚩 Şübhəli" : (item.gpsFlag === "təxmini" ? "〰️ Təxmini" : "📍 Normal");
+        let tr = document.createElement("tr"); if (item.gpsFlag === "şübhəli") tr.className = "row-flagged";
+        tr.innerHTML = `<td>${item.dateTime}</td><td><b>${item.agent}</b></td><td>${item.region}</td><td>${item.obj}</td><td>${typeDesc}</td><td>${docPayText}</td><td>${gpsIcon}</td>`;
+        tbody.appendChild(tr);
     }
+}
 
-    function updateYears() {
-        const brand = document.getElementById('brand').value;
-        const model = document.getElementById('model').value;
-        const yearSelect = document.getElementById('year');
-        yearSelect.innerHTML = '<option value="">İl seçin...</option>';
-        if (brand && model && autoData[brand][model]) {
-            yearSelect.disabled = false;
-            autoData[brand][model].years.reverse().forEach(y => yearSelect.innerHTML += `<option value="${y}">${y}</option>`);
-        } else { yearSelect.disabled = true; }
+/* ============================================================
+   ADMIN: STOK HESABATI
+   ============================================================ */
+function filterStockReport() {
+    let selAgent = document.getElementById("filterStockAgent").value;
+    let selDate = document.getElementById("filterStockDate").value;
+    let tbody = document.getElementById("stockReportTableBody"), calcBox = document.getElementById("adminStockCalcBox");
+    tbody.innerHTML = "";
+    let filtered = Object.values(visitsCache).filter(r => (selAgent === "all" || r.agent === selAgent) && r.date === selDate && r.drug !== "-");
+    if (filtered.length === 0) { tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#78909c;">Seçilmiş tarixdə aptek satış/stok əməliyyatı yoxdur.</td></tr>`; calcBox.innerHTML = `Nağd Satış: 0 qutu | Bonuslar: 0 ₼ | Net: 0 ₼<br><span style="color:#0277bd;">Nisyə: 0 qutu</span>`; return; }
+    let totalCashQty = 0, totalBonusSum = 0, totalNetSum = 0, totalNisyeQty = 0;
+    filtered.forEach(r => {
+        let qty = (r.qty !== "-" && !isNaN(r.qty)) ? parseInt(r.qty) : 0, bon = r.bonusAmount || 0, net = r.netAmount || 0;
+        if (r.type.includes("Nisyə")) totalNisyeQty += qty; else { totalCashQty += qty; totalBonusSum += bon; totalNetSum += net; }
+        let tr = document.createElement("tr");
+        tr.innerHTML = `<td>${r.dateTime || r.date}</td><td><b>${r.agent}</b></td><td>${r.obj}</td><td>${r.type}</td><td>${r.drug}</td><td>${r.qty}</td><td>${bon} ₼</td><td><b>${net} ₼</b></td>`;
+        tbody.appendChild(tr);
+    });
+    calcBox.innerHTML = `📊 Nağd Satış: ${totalCashQty} qutu | Bonuslar: ${totalBonusSum} ₼ | <b>Net Qazanc: ${totalNetSum} ₼</b><br><span style="color:#0277bd;">Nisyə: ${totalNisyeQty} qutu</span>`;
+}
+
+/* ============================================================
+   ADMIN: DASHBOARD (KPI + QRAFİKLƏR + PERFORMANS + STOK)
+   ============================================================ */
+function renderDashboard() {
+    renderAdminAlerts();
+    renderKPIs();
+    renderCharts();
+    renderAgentPerfTable();
+    renderTotalStock();
+}
+function renderAdminAlerts() {
+    let box = document.getElementById("adminAlertBox"); if (!box) return;
+    let pendingCount = Object.values(visitsCache).filter(r => r.approvalStatus === "pending").length;
+    let today = todayStr();
+    let overdueCount = Object.values(doctorsCache).filter(d => { let freq = CLASS_FREQUENCY_DAYS[d.class || "B"]; return !d.lastVisit || daysBetween(d.lastVisit, today) > freq; }).length;
+    let html = "";
+    if (pendingCount > 0) html += `<div class="badge badge-warn" style="display:block; text-align:center;">⏳ ${pendingCount} bonus ödənişi təsdiq gözləyir</div>`;
+    if (overdueCount > 0) html += `<div class="badge badge-danger" style="display:block; text-align:center;">⚠️ ${overdueCount} həkim ziyarət planından gecikib</div>`;
+    box.innerHTML = html;
+}
+function monthPrefix(offset) {
+    let now = new Date();
+    let d = new Date(now.getFullYear(), now.getMonth() - offset, 1);
+    return d.toISOString().slice(0, 7);
+}
+function renderKPIs() {
+    let thisM = monthPrefix(0), lastM = monthPrefix(1);
+    let thisMonthVisits = Object.values(visitsCache).filter(r => r.date && r.date.startsWith(thisM));
+    let lastMonthVisits = Object.values(visitsCache).filter(r => r.date && r.date.startsWith(lastM));
+    let thisNet = thisMonthVisits.reduce((s, r) => s + (r.netAmount || 0), 0);
+    let lastNet = lastMonthVisits.reduce((s, r) => s + (r.netAmount || 0), 0);
+    let diffPct = lastNet > 0 ? (((thisNet - lastNet) / lastNet) * 100).toFixed(1) : null;
+    let diffLabel = diffPct === null ? "—" : (diffPct >= 0 ? `▲ ${diffPct}%` : `▼ ${Math.abs(diffPct)}%`);
+    let diffClass = diffPct === null ? "" : (diffPct >= 0 ? "color:#2e7d32;" : "color:#c62828;");
+
+    let today = todayStr();
+    let overdueCount = Object.values(doctorsCache).filter(d => { let freq = CLASS_FREQUENCY_DAYS[d.class || "B"]; return !d.lastVisit || daysBetween(d.lastVisit, today) > freq; }).length;
+    let pendingCount = Object.values(visitsCache).filter(r => r.approvalStatus === "pending").length;
+    let totalDebtValue = 0;
+    Object.values(pharmaciesCache).forEach(p => (p.debts || []).forEach(x => totalDebtValue += x.qty * (productsDB[x.drug] ? productsDB[x.drug].price : 0)));
+
+    document.getElementById("kpiBox").innerHTML = `
+        <div class="stat-box good"><div class="stat-num">${thisNet.toFixed(0)} ₼</div><div class="stat-label">Bu Ay Net Satış</div><div class="stat-sub" style="${diffClass}">${diffLabel} (keçən aya görə)</div></div>
+        <div class="stat-box"><div class="stat-num">${thisMonthVisits.length}</div><div class="stat-label">Bu Ay Əməliyyat</div></div>
+        <div class="stat-box ${totalDebtValue > 0 ? 'warn' : ''}"><div class="stat-num ${totalDebtValue > 0 ? 'warn-text' : ''}">${totalDebtValue.toFixed(0)} ₼</div><div class="stat-label">Ümumi Nisyə</div></div>
+        <div class="stat-box ${overdueCount > 0 ? 'bad' : 'good'}"><div class="stat-num ${overdueCount > 0 ? 'bad-text' : ''}">${overdueCount}</div><div class="stat-label">Gecikmiş Həkim</div></div>
+        <div class="stat-box ${pendingCount > 0 ? 'warn' : 'good'}"><div class="stat-num ${pendingCount > 0 ? 'warn-text' : ''}">${pendingCount}</div><div class="stat-label">Təsdiq Gözləyən Bonus</div></div>
+    `;
+}
+function renderCharts() {
+    if (typeof Chart === "undefined") return;
+    let labels = [], data = [];
+    for (let i = 5; i >= 0; i--) {
+        let d = new Date(); d.setMonth(d.getMonth() - i);
+        let prefix = d.toISOString().slice(0, 7);
+        labels.push(MONTH_NAMES_AZ[d.getMonth()]);
+        data.push(Object.values(visitsCache).filter(r => r.date && r.date.startsWith(prefix)).reduce((s, r) => s + (r.netAmount || 0), 0));
     }
+    let trendCtx = document.getElementById("salesTrendChart").getContext("2d");
+    if (trendChart) trendChart.destroy();
+    trendChart = new Chart(trendCtx, { type: "line", data: { labels, datasets: [{ label: "Net Satış (₼)", data, borderColor: "#2e7d32", backgroundColor: "rgba(46,125,50,0.1)", tension: 0.3, fill: true, pointRadius: 3 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } } });
 
-    function updateEngines() {
-        const brand = document.getElementById('brand').value;
-        const model = document.getElementById('model').value;
-        const engineSelect = document.getElementById('engine');
-        engineSelect.innerHTML = '<option value="">Mühərrik seçin...</option>';
-        if (brand && model && autoData[brand][model]) {
-            engineSelect.disabled = false;
-            autoData[brand][model].engines.forEach(e => engineSelect.innerHTML += `<option value="${e}">${e}</option>`);
-        } else { engineSelect.disabled = true; }
+    let thisM = monthPrefix(0);
+    let byDrug = {};
+    Object.values(visitsCache).filter(r => r.date && r.date.startsWith(thisM) && r.drug && r.drug !== "-").forEach(r => byDrug[r.drug] = (byDrug[r.drug] || 0) + (parseInt(r.qty) || 0));
+    let sortedDrugs = Object.entries(byDrug).sort((a, b) => b[1] - a[1]);
+    let top5 = sortedDrugs.slice(0, 5);
+    let otherSum = sortedDrugs.slice(5).reduce((s, [,v]) => s + v, 0);
+    let shareLabels = top5.map(x => x[0]); let shareData = top5.map(x => x[1]);
+    if (otherSum > 0) { shareLabels.push("Digər"); shareData.push(otherSum); }
+    let shareCtx = document.getElementById("productShareChart").getContext("2d");
+    if (shareChart) shareChart.destroy();
+    if (shareData.length === 0) { shareLabels = ["Məlumat yoxdur"]; shareData = [1]; }
+    shareChart = new Chart(shareCtx, { type: "doughnut", data: { labels: shareLabels, datasets: [{ data: shareData, backgroundColor: ["#2e7d32","#66bb6a","#0277bd","#f57c00","#ad1457","#90a4ae"] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom", labels: { boxWidth: 10, font: { size: 9 } } } } } });
+
+    let agentNames = Object.keys(agentRegions);
+    let agentNet = agentNames.map(ag => Object.values(visitsCache).filter(r => r.date && r.date.startsWith(thisM) && r.agent === ag).reduce((s, r) => s + (r.netAmount || 0), 0));
+    let agentCtx = document.getElementById("agentPerformanceChart").getContext("2d");
+    if (agentChart) agentChart.destroy();
+    agentChart = new Chart(agentCtx, { type: "bar", data: { labels: agentNames.map(a => a.split(" ")[0]), datasets: [{ label: "Net Satış (₼)", data: agentNet, backgroundColor: "#0277bd", borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } } });
+}
+function renderAgentPerfTable() {
+    let thisM = monthPrefix(0), today = todayStr();
+    let tbody = document.getElementById("agentPerfTableBody"); if (!tbody) return;
+    let rows = "";
+    for (let ag in agentRegions) {
+        let visits = Object.values(visitsCache).filter(r => r.agent === ag && r.date && r.date.startsWith(thisM));
+        let sales = visits.reduce((s, r) => s + (r.netAmount || 0), 0);
+        let overdue = Object.values(doctorsCache).filter(d => d.agent === ag).filter(d => { let freq = CLASS_FREQUENCY_DAYS[d.class || "B"]; return !d.lastVisit || daysBetween(d.lastVisit, today) > freq; }).length;
+        let debt = 0; Object.values(pharmaciesCache).filter(p => p.agent === ag).forEach(p => (p.debts || []).forEach(x => debt += x.qty * (productsDB[x.drug] ? productsDB[x.drug].price : 0)));
+        rows += `<tr><td><b>${ag}</b></td><td>${sales.toFixed(0)} ₼</td><td>${visits.length}</td><td style="${overdue > 0 ? 'color:#c62828; font-weight:bold;' : ''}">${overdue}</td><td>${debt.toFixed(0)} ₼</td></tr>`;
     }
-
-    function toggleCustomPartInput() {
-        const partCategory = document.getElementById('partCategory').value;
-        const customPartGroup = document.getElementById('customPartGroup');
-        customPartGroup.style.display = (partCategory === 'custom') ? 'block' : 'none';
+    tbody.innerHTML = rows;
+}
+function renderTotalStock() {
+    let totals = {}; for (let d in productsDB) totals[d] = 0;
+    for (let agent in agentsCache) { let s = agentsCache[agent].stocks || {}; for (let d in productsDB) totals[d] += (s[d] || 0); }
+    let container = document.getElementById("adminTotalStock"); if (!container) return;
+    container.innerHTML = "";
+    for (let d in productsDB) {
+        let low = totals[d] < LOW_STOCK_THRESHOLD;
+        container.innerHTML += `<div class="stock-item"><span>${d}</span> <strong style="${low ? 'color:#c62828;' : ''}">${totals[d]} qutu ${low ? '🔴' : ''}</strong></div>`;
     }
+}
 
-    let offerCounter = 0;
+/* ============================================================
+   ADMIN: HƏKİM BAZASI (SİNİFLƏNDİRMƏ)
+   ============================================================ */
+function renderDoctorsPage() {
+    let container = document.getElementById("doctorsListBox"); let today = todayStr();
+    let doctors = Object.values(doctorsCache).sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+    if (doctors.length === 0) { container.innerHTML = "<p style='color:#78909c; font-size:12px;'>Hələ heç bir həkim qeydə alınmayıb.</p>"; return; }
+    let html = "";
+    doctors.forEach(d => {
+        let freq = CLASS_FREQUENCY_DAYS[d.class || "B"];
+        let overdue = !d.lastVisit || daysBetween(d.lastVisit, today) > freq;
+        html += `<div class="list-row"><div class="list-row-head"><b>${d.name}</b><span class="pill pill-${d.class || "B"}">${d.class || "B"} sinif</span></div><div style="color:#607d8b; margin-top:4px;">📍 ${d.region} &nbsp;|&nbsp; 👤 ${d.agent}</div><div style="margin-top:4px;">Son ziyarət: <b>${d.lastVisit || "—"}</b> &nbsp; ${overdue ? '<span class="pill pill-red">⚠️ GECİKMİŞ</span>' : '<span class="pill pill-green">✅ Vaxtındadır</span>'}</div><select onchange="changeDoctorClass('${d.id}', this.value)" style="margin-top:6px;"><option value="A" ${d.class === "A" ? "selected" : ""}>A - Yüksək potensial (7 gündə bir)</option><option value="B" ${(!d.class || d.class === "B") ? "selected" : ""}>B - Orta potensial (15 gündə bir)</option><option value="C" ${d.class === "C" ? "selected" : ""}>C - Aşağı potensial (30 gündə bir)</option></select></div>`;
+    });
+    container.innerHTML = html;
+}
+function changeDoctorClass(id, newClass) { if (doctorsCache[id]) doctorsCache[id].class = newClass; renderDoctorsPage(); renderDashboard(); }
 
-    function handleClientSubmit(event) {
-        event.preventDefault();
-        document.getElementById('liveOffers').classList.add('active');
-        alert("✅ Sorğunuz yaradıldı! Mağaza panelinə keçib qiymət təklifi yazaraq sınaqdan keçirə bilərsiniz.");
+/* ============================================================
+   ADMIN: APTEK BAZASI (NİSYƏ YAŞLANMASI)
+   ============================================================ */
+function renderPharmaciesPage() {
+    let container = document.getElementById("pharmaciesListBox"); let today = todayStr();
+    let pharmacies = Object.values(pharmaciesCache).sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+    if (pharmacies.length === 0) { container.innerHTML = "<p style='color:#78909c; font-size:12px;'>Hələ heç bir aptek qeydə alınmayıb.</p>"; return; }
+    let html = "";
+    pharmacies.forEach(p => {
+        let debts = p.debts || [];
+        let totalValue = debts.reduce((s, x) => s + x.qty * (productsDB[x.drug] ? productsDB[x.drug].price : 0), 0);
+        let limit = p.debtLimit || DEFAULT_DEBT_LIMIT;
+        let maxAge = debts.reduce((m, x) => Math.max(m, daysBetween(x.dateGiven, today)), 0);
+        let ageColor = maxAge > 60 ? "red" : (maxAge > 30 ? "orange" : "green");
+        html += `<div class="list-row"><div class="list-row-head"><b>${p.name}</b><span class="pill pill-${ageColor}">${debts.length ? maxAge + " gün" : "borc yoxdur"}</span></div><div style="color:#607d8b; margin-top:4px;">📍 ${p.region} &nbsp;|&nbsp; 👤 ${p.agent}</div><div style="margin-top:4px;">Nisyə dəyəri: <b style="color:${totalValue >= limit ? '#c62828' : '#263238'};">${totalValue.toFixed(2)} ₼</b> / limit ${limit} ₼</div>${debts.map(x => `<div style="font-size:11px; color:#78909c; margin-top:2px;">- ${x.drug}: ${x.qty} qutu (${daysBetween(x.dateGiven, today)} gündür)</div>`).join("")}<label style="margin-top:6px;">Kredit limiti (₼):</label><input type="number" value="${limit}" onchange="changeDebtLimit('${p.id}', this.value)"></div>`;
+    });
+    container.innerHTML = html;
+}
+function changeDebtLimit(id, newLimit) { if (pharmaciesCache[id]) pharmaciesCache[id].debtLimit = parseFloat(newLimit) || DEFAULT_DEBT_LIMIT; renderPharmaciesPage(); }
+
+/* ============================================================
+   ADMIN: BONUS TƏSDİQLƏRİ
+   ============================================================ */
+function renderApprovalsPage() {
+    let container = document.getElementById("approvalsListBox");
+    let pending = Object.values(visitsCache).filter(r => r.approvalStatus === "pending");
+    if (pending.length === 0) { container.innerHTML = "<p style='color:#2e7d32; font-size:12px;'>✅ Gözləyən ödəniş yoxdur.</p>"; return; }
+    let html = "";
+    pending.forEach(r => {
+        html += `<div class="list-row"><div class="list-row-head"><b>${r.obj}</b><span class="pill pill-orange">${r.doctorPay} ₼</span></div><div style="color:#607d8b; margin-top:4px;">👤 ${r.agent} &nbsp;|&nbsp; 📅 ${r.dateTime}</div><div style="margin-top:6px;"><button class="mini-btn" style="background:#2e7d32;" onclick="approvePayment('${r.id}')">✅ Təsdiqlə</button><button class="mini-btn" style="background:#c62828;" onclick="rejectPayment('${r.id}', '${r.agent}', ${r.doctorPay})">❌ Rədd Et & Geri Qaytar</button></div></div>`;
+    });
+    container.innerHTML = html;
+}
+function approvePayment(visitId) { if (visitsCache[visitId]) visitsCache[visitId].approvalStatus = "approved"; renderApprovalsPage(); updatePendingBadge(); renderAdminAlerts(); }
+function rejectPayment(visitId, agent, amount) {
+    if (!confirm(`Bu ödəniş rədd edilsin və ${amount}₼ ${agent} işçisinin büdcəsinə geri qaytarılsın?`)) return;
+    if (visitsCache[visitId]) visitsCache[visitId].approvalStatus = "rejected";
+    if (agentsCache[agent]) agentsCache[agent].budget = (agentsCache[agent].budget || 0) + amount;
+    renderApprovalsPage(); updatePendingBadge(); renderAdminAlerts(); updateAdminAgentBudgets();
+}
+function updatePendingBadge() {
+    let count = Object.values(visitsCache).filter(r => r.approvalStatus === "pending").length;
+    let badge = document.getElementById("pendingCountBadgeSidebar");
+    if (badge) badge.innerText = count > 0 ? `(${count})` : "";
+}
+
+/* ============================================================
+   ADMIN: TƏNZİMLƏMƏLƏR (MƏHSUL & ŞİFRƏLƏR)
+   ============================================================ */
+function renderSettingsPage() {
+    let prodContainer = document.getElementById("existingProductsAdminList");
+    let html = "<b style='font-size:11px; color:#607d8b; text-transform:uppercase;'>Mövcud Məhsullar:</b>";
+    for (let name in productsDB) html += `<div class="stock-item"><span>${name}</span><strong>${productsDB[name].price} ₼ / Bonus ${productsDB[name].bonus} ₼</strong></div>`;
+    prodContainer.innerHTML = html;
+
+    let passContainer = document.getElementById("agentsPasswordList");
+    let passHtml = "";
+    let allUsers = ["admin", ...Object.keys(agentRegions)];
+    allUsers.forEach(u => {
+        let label = u === "admin" ? "👑 Admin (İsmayıl Mirzəzadə)" : "👤 " + u;
+        passHtml += `<div class="settings-row"><label>${label}</label><input type="text" id="pass_${u.replace(/\s/g,'_')}" value="${agentPassMap[u] || ''}"><button onclick="saveAgentPassword('${u}')">Saxla</button></div>`;
+    });
+    passContainer.innerHTML = passHtml;
+}
+function addNewProductToDB() {
+    let name = document.getElementById("newDrugNameInput").value.trim();
+    let price = parseFloat(document.getElementById("newDrugPriceInput").value) || 0;
+    let bonus = parseFloat(document.getElementById("newDrugBonusInput").value) || 0;
+    let desc = document.getElementById("newDrugDescInput").value.trim() || "Ətraflı məlumat üçün admin ilə əlaqə saxlayın.";
+    if (!name || price <= 0) { alert("Məhsulun adını və düzgün qiymətini daxil edin!"); return; }
+    productsDB[name] = { price, bonus, desc };
+    for (let ag in agentsCache) if (agentsCache[ag].stocks[name] === undefined) agentsCache[ag].stocks[name] = 0;
+    document.getElementById("newDrugNameInput").value = ""; document.getElementById("newDrugPriceInput").value = ""; document.getElementById("newDrugBonusInput").value = ""; document.getElementById("newDrugDescInput").value = "";
+    initDropdowns(); renderPublicProducts(); renderSettingsPage(); renderTotalStock();
+    alert(`"${name}" məhsul kataloquna əlavə olundu!`);
+}
+function saveAgentPassword(userKey) {
+    let val = document.getElementById(`pass_${userKey.replace(/\s/g,'_')}`).value.trim();
+    if (!val) { alert("Şifrə boş ola bilməz!"); return; }
+    agentPassMap[userKey] = val;
+    alert(`${userKey} üçün şifrə yeniləndi.`);
+}
+
+/* ============================================================
+   İŞÇİNİN GÜNLÜK HESABATI
+   ============================================================ */
+function openAgentReportModal() {
+    let selectedDate = document.getElementById("workDate").value;
+    let content = document.getElementById("agentReportContent");
+    let filtered = Object.values(visitsCache).filter(r => r.agent === currentAgent && r.date === selectedDate);
+    if (filtered.length === 0) {
+        content.innerHTML = `<p style="text-align:center; color:#78909c;">Sizin ${selectedDate} tarixində hələ heç bir əməliyyatınız yoxdur.</p>`;
+    } else {
+        let html = `<p style="font-size:12px; font-weight:bold; color:var(--primary);">📅 Tarix: ${selectedDate}</p><div class="table-container"><table><thead><tr><th>Tarix/Saat</th><th>Obyekt</th><th>Əməliyyat</th><th>Məhsul</th><th>Miq</th><th>Məbləğ</th></tr></thead><tbody>`;
+        let myNetSum = 0, nisyeQtySum = 0;
+        filtered.forEach(r => {
+            let net = r.netAmount || 0;
+            if (r.type.includes("Nisyə")) nisyeQtySum += (r.qty !== "-" ? parseInt(r.qty) : 0); else myNetSum += net;
+            html += `<tr><td>${r.dateTime}</td><td><b>${r.obj}</b></td><td>${r.type}</td><td>${r.drug}</td><td>${r.qty}</td><td><b>${net} ₼</b></td></tr>`;
+        });
+        html += `</tbody></table></div><div class="calc-total-box" style="margin-top:10px;">Günlük Nağd Saf Net Qazanc: <b>${myNetSum} ₼</b><br><span style="font-weight:normal; font-size:11px;">Nisyə Verilib Gözləmədə Olan: ${nisyeQtySum} qutu</span></div>`;
+        content.innerHTML = html;
     }
+    document.getElementById("agentReportModal").classList.remove("hidden");
+}
+function closeAgentReportModal() { document.getElementById("agentReportModal").classList.add("hidden"); }
 
-    function handleMerchantSubmit(e) {
-        e.preventDefault();
-        const storeName = document.getElementById('storeName').value;
-        const price = document.getElementById('offerPrice').value;
-        const brand = document.getElementById('offerBrand').value;
-        const delivery = document.getElementById('offerDelivery').value || "30 dəqiqəyə";
-
-        offerCounter++;
-        document.getElementById('offerCount').innerText = `${offerCounter} Təklif`;
-
-        const offersContainer = document.getElementById('offersContainer');
-        const card = document.createElement('div');
-        card.className = 'offer-card';
-
-        card.innerHTML = `
-            <div class="store-header">
-                <span class="store-name">🏬 ${storeName}</span>
-                <span class="price">${price} AZN</span>
-            </div>
-            <div class="delivery-info">🏷 ${brand} | 🚚 ${delivery}</div>
-            <button class="btn-select" onclick="selectOffer('${storeName}', '${price}')">Sifarişi Təsdiqlə Və Seç</button>
-        `;
-
-        offersContainer.prepend(card);
-        alert("✅ Təklifiniz müştərinin canlı ekranına əlavə olundu!");
-        switchTab('client');
-    }
-
-    function selectOffer(storeName, price) {
-        const phone = document.getElementById('clientPhone').value || "050-123-45-67";
-        alert(`🎉 Sifariş təsdiqləndi!\n🏬 Mağaza: ${storeName}\n💰 Məbləğ: ${price} AZN\n📞 Müştəri: ${phone}`);
-    }
+/* ============================================================
+   BAŞLADICI
+   ============================================================ */
+window.onload = function() {
+    seedLocalData();
+    populateLoginUserSelect();
+    renderPublicProducts();
+};
 </script>
 
 </body>
