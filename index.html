@@ -68,6 +68,10 @@
             .admin-content { width: 100%; padding: 12px; }
         }
 
+        .filter-row { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; align-items: flex-end; }
+        .filter-col { flex: 1; min-width: 150px; }
+        @media (max-width: 600px) { .filter-col { min-width: 100%; } }
+
         .dash-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
         .dash-title { font-size: 20px; font-weight: 800; color: var(--text); margin: 0; }
         .dash-filter { display: flex; align-items: center; gap: 10px; background: white; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); flex-wrap: wrap; }
@@ -158,7 +162,7 @@
             <div class="stat-box"><div class="stat-num" id="loginUserCount">0</div><div class="stat-label">Aktiv İşçi</div></div>
         </div>
 
-        <label>İstifadəçi / Rol Seçimi:</label>
+        <label>İstifadəçi Seçimi:</label>
         <select id="userSelect" style="font-weight: 600;"></select>
 
         <label>Şifrə:</label>
@@ -173,7 +177,7 @@
 
     <div class="card">
         <h3>💊 Şirkət Məhsulları (Məlumat Paneli)</h3>
-        <p style="font-size: 12px; color: var(--gray); margin-top: -5px;">Həkim təqdimatı zamanı istənilən dərmana toxunaraq xüsusiyyətləri açın:</p>
+        <p style="font-size: 12px; color: var(--gray); margin-top: -5px;">İstənilən dərmana toxunaraq xüsusiyyətləri açın:</p>
         <div class="products-grid" id="publicProductsList"></div>
         <a href="https://goldenvitpharma.com/products" target="_blank" class="web-link-btn">🌐 Sayta Keçid Et (goldenvitpharma.com)</a>
     </div>
@@ -188,11 +192,10 @@
         </div>
         
         <div style="flex: 1; display: flex; flex-direction: column;">
-            <!-- BOSS Menus -->
-            <div class="menu-item role-boss" id="menu-dash-region" onclick="switchAdminTab('dash-region', this)">
+            <!-- ADMIN & BOSS Shared -->
+            <div class="menu-item role-boss role-admin" id="menu-dash-region" onclick="switchAdminTab('dash-region', this)">
                 <span class="menu-icon">🌍</span> Region Hədəf (Distributor)
             </div>
-            <!-- ADMIN & BOSS Shared -->
             <div class="menu-item role-boss role-admin" id="menu-dash-master" onclick="switchAdminTab('dash-master', this)">
                 <span class="menu-icon">📊</span> Master Dashboard (Bakı)
             </div>
@@ -250,12 +253,11 @@
 
     <main class="admin-content" id="adminContent">
         
-        <!-- 1. REGION DASHBOARD (BOSS ONLY) -->
         <div id="tab-dash-region" class="admin-tab hidden">
             <div class="dash-header">
                 <h2 class="dash-title">🌍 Region Hədəf və Realizasiya</h2>
                 <div class="dash-filter">
-                    <span style="font-size: 14px; color: var(--gray);">Tarix (Başlanğıc - Bitiş):</span>
+                    <span style="font-size: 14px; color: var(--gray);">Tarix:</span>
                     <input type="date" id="bossRegionStart" onchange="updateBossRegionDashboard()">
                     <input type="date" id="bossRegionEnd" onchange="updateBossRegionDashboard()">
                     <select id="bossRegionSelect" onchange="updateBossRegionDashboard()">
@@ -285,7 +287,7 @@
 
             <div class="charts-grid">
                 <div class="chart-container" style="grid-column: 1 / -1;">
-                    <div class="chart-title">🏆 Distributor Performans Müqayisəsi (Şirkətə Borc ₼)</div>
+                    <div class="chart-title">🏆 Distributor Performans Müqayisəsi (Cəmi Satış - Qutu)</div>
                     <div class="fixed-chart-box">
                         <canvas id="distPerfChart"></canvas>
                     </div>
@@ -319,7 +321,6 @@
             </div>
         </div>
 
-        <!-- 2. MASTER DASHBOARD (BAKU APTEK) -->
         <div id="tab-dash-master" class="admin-tab hidden">
             <div class="dash-header">
                 <h2 class="dash-title">📊 Bakı Aptek Əməliyyatları</h2>
@@ -368,7 +369,6 @@
             </div>
         </div>
 
-        <!-- 3. REALİZASİYA (ADMIN) -->
         <div id="tab-realize" class="admin-tab hidden">
             <!-- Avans Control -->
             <div class="card" style="border-top: 4px solid #f59e0b; margin-bottom: 20px;">
@@ -377,12 +377,12 @@
                     <button class="export-btn" onclick="exportTableToExcel('distAdvanceExcelTable', 'Avans_Hesabati')">📥 Excel</button>
                 </div>
                 <p style="font-size:12px; color:var(--gray); margin-top:5px;">Distributorlara verilən həkim avansları (pred) buradan idarə olunur.</p>
-                <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end;">
-                    <div style="flex:1; min-width:200px;">
+                <div class="filter-row">
+                    <div class="filter-col">
                         <label>Distributor / Region:</label>
                         <select id="realizeAdvAgentSelect"></select>
                     </div>
-                    <div style="flex:1; min-width:200px;">
+                    <div class="filter-col">
                         <label>Verilən Avans (AZN):</label>
                         <input type="number" id="realizeAdvAmt" placeholder="Məs: 1000" min="0">
                     </div>
@@ -448,16 +448,16 @@
                     <button class="export-btn" onclick="exportTableToExcel('realizeExcelTable', 'Realizasiya_Hesabati')">📥 Excel</button>
                 </div>
                 <p style="font-size:12px; color:var(--gray); margin-top:5px; margin-bottom:12px;">Tarix aralığını seçərək ətraflı hesabat ala bilərsiniz.</p>
-                <div style="display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap;">
-                    <div style="flex:1; min-width: 150px;">
+                <div class="filter-row">
+                    <div class="filter-col">
                         <label style="margin-top:0;">Başlanğıc Tarix:</label>
                         <input type="date" id="filterRealizeStart" onchange="renderRealizationTable()">
                     </div>
-                    <div style="flex:1; min-width: 150px;">
+                    <div class="filter-col">
                         <label style="margin-top:0;">Bitiş Tarix:</label>
                         <input type="date" id="filterRealizeEnd" onchange="renderRealizationTable()">
                     </div>
-                    <div style="flex:1; min-width: 200px;">
+                    <div class="filter-col">
                         <label style="margin-top:0;">Distributor Seçin:</label>
                         <select id="filterRealizeAgent" onchange="renderRealizationTable()">
                             <option value="all">Bütün Regionlar</option>
@@ -497,7 +497,6 @@
             </div>
         </div>
 
-        <!-- 4. TRANSFER TAB -->
         <div id="tab-transfer" class="admin-tab hidden">
             <div class="card" style="max-width: 600px; margin: 0 auto 20px auto; border-top: 4px solid var(--primary);">
                 <h3>🔄 Aptek İşçisinə Mal Təyinatı</h3>
@@ -516,7 +515,6 @@
             </div>
         </div>
 
-        <!-- 5. BUDGET TAB -->
         <div id="tab-budget" class="admin-tab hidden">
             <div class="card" style="max-width: 600px; margin: 0 auto; border-top: 4px solid var(--accent);">
                 <h3>💰 İşçiyə Bonus (Büdcə) Təyinatı</h3>
@@ -532,16 +530,15 @@
             </div>
         </div>
 
-        <!-- 6. PRED İDARƏETMƏ -->
         <div id="tab-pred-manager" class="admin-tab hidden">
             <div class="card">
                 <h3>📊 Həkim Pred İzləmə və Təsdiqləmə Mərkəzi</h3>
                 <p style="font-size:12px; color:var(--gray); margin-top:-5px;">İşçilərdən gələn istəklər burada görünür.</p>
                 
-                <div style="display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap;">
-                    <div style="flex:1; min-width: 150px;"><label style="margin-top:0;">Tarix:</label><input type="date" id="filterPredDate" onchange="renderPredManagerTable()"></div>
-                    <div style="flex:1; min-width: 150px;"><label style="margin-top:0;">İşçi (Doc Agent):</label><select id="filterPredAgent" onchange="renderPredManagerTable()"><option value="all">Bütün İşçilər</option></select></div>
-                    <div style="flex:1; min-width: 150px;"><label style="margin-top:0;">Klinika / Həkim Axtar:</label><input type="text" id="filterPredText" placeholder="Axtarış..." onkeyup="renderPredManagerTable()"></div>
+                <div class="filter-row">
+                    <div class="filter-col"><label style="margin-top:0;">Tarix:</label><input type="date" id="filterPredDate" onchange="renderPredManagerTable()"></div>
+                    <div class="filter-col"><label style="margin-top:0;">İşçi (Doc Agent):</label><select id="filterPredAgent" onchange="renderPredManagerTable()"><option value="all">Bütün İşçilər</option></select></div>
+                    <div class="filter-col"><label style="margin-top:0;">Klinika / Həkim Axtar:</label><input type="text" id="filterPredText" placeholder="Axtarış..." onkeyup="renderPredManagerTable()"></div>
                 </div>
 
                 <div class="table-container">
@@ -561,7 +558,6 @@
             </div>
         </div>
 
-        <!-- 7. AGING TAB -->
         <div id="tab-aging" class="admin-tab hidden">
             <div class="card">
                 <h3>🏪 Aptek Bazası & Nisyə Yaşlanması</h3>
@@ -571,8 +567,8 @@
                     <span style="color: red; font-weight:bold;">🔴 60+ gün (Riskli Borc)</span>
                 </div>
                 
-                <div style="display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap;">
-                    <div style="flex:1; min-width: 200px;">
+                <div class="filter-row">
+                    <div class="filter-col">
                         <label style="margin-top:0;">İşçi Seçin (Filtr):</label>
                         <select id="filterAgingAgent" onchange="renderAgingReport()"><option value="all">Bütün İşçilər</option></select>
                     </div>
@@ -589,12 +585,11 @@
             </div>
         </div>
 
-        <!-- 8. MAP TAB -->
         <div id="tab-map" class="admin-tab hidden">
             <div class="card">
                 <h3>🗺️ Canlı Sahə Xəritəsi</h3>
-                <div style="display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap;">
-                    <div style="flex:1; min-width: 150px;">
+                <div class="filter-row">
+                    <div class="filter-col">
                         <label style="margin-top:0;">Obyekt Növü:</label>
                         <select id="adminMapTypeSelect" onchange="filterAdminMap()">
                             <option value="all">Hamısı</option>
@@ -602,7 +597,7 @@
                             <option value="Həkim">Həkimlər</option>
                         </select>
                     </div>
-                    <div style="flex:1; min-width: 150px;">
+                    <div class="filter-col">
                         <label style="margin-top:0;">Tarix (Gün):</label>
                         <input type="date" id="adminMapDateSelect" onchange="filterAdminMap()">
                     </div>
@@ -613,16 +608,15 @@
             </div>
         </div>
 
-        <!-- 9. ROUTE REPORT TAB -->
         <div id="tab-routeReport" class="admin-tab hidden">
             <div class="card">
                 <h3>🛣️ İşçi Gündəlik Ziyarət Hesabatı</h3>
-                <div style="display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap;">
-                    <div style="flex:1; min-width: 200px;">
+                <div class="filter-row">
+                    <div class="filter-col">
                         <label style="margin-top:0;">İşçi Seçin:</label>
                         <select id="filterRouteAgent" onchange="filterRouteReport()"><option value="all">Bütün İşçilər</option></select>
                     </div>
-                    <div style="flex:1; min-width: 200px;">
+                    <div class="filter-col">
                         <label style="margin-top:0;">Tarix (Gün):</label>
                         <input type="date" id="filterRouteDate" onchange="filterRouteReport()">
                     </div>
@@ -639,16 +633,15 @@
             </div>
         </div>
 
-        <!-- 10. STOCK REPORT TAB -->
         <div id="tab-stockReport" class="admin-tab hidden">
             <div class="card">
                 <h3>📋 Aptek Üzrə Nağd, Nisyə və Bonus Balansı</h3>
-                <div style="display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap;">
-                    <div style="flex:1; min-width: 200px;">
+                <div class="filter-row">
+                    <div class="filter-col">
                         <label style="margin-top:0;">İşçi Seçin:</label>
                         <select id="filterStockAgent" onchange="filterStockReport()"><option value="all">Bütün İşçilər</option></select>
                     </div>
-                    <div style="flex:1; min-width: 200px;">
+                    <div class="filter-col">
                         <label style="margin-top:0;">Tarix (Gün):</label>
                         <input type="date" id="filterStockDate" onchange="filterStockReport()">
                     </div>
@@ -665,7 +658,6 @@
             </div>
         </div>
 
-        <!-- 11. SETTINGS TAB (Admin) -->
         <div id="tab-settings" class="admin-tab hidden">
             <div class="card" style="border-top: 4px solid var(--success); margin-bottom:20px;">
                 <h3>➕ Yeni İşçi / İstifadəçi Əlavə Et</h3>
@@ -730,7 +722,6 @@
             </div>
         </div>
 
-        <!-- 12. SETTINGS TAB (Boss Only) -->
         <div id="tab-settings-boss" class="admin-tab hidden">
             <div class="card" style="border-top: 4px solid var(--primary); max-width:500px; margin:0 auto;">
                 <h3>👤 Profil Tənzimləmələri</h3>
@@ -742,7 +733,6 @@
     </main>
 </div>
 
-<!-- İŞÇİ PANELİ -->
 <div class="container hidden" id="agentPanel">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
         <div class="badge" id="agentBadge" style="margin:0; font-size:14px;">👤 İşçi Paneli</div>
@@ -781,8 +771,8 @@
         <label>Rayon:</label>
         <select id="regionSelect"></select>
 
-        <label>Ziyarət Növü:</label>
-        <select id="visitType" onchange="toggleVisitFields()">
+        <label class="agent-aptek-only">Ziyarət Növü:</label>
+        <select id="visitType" onchange="toggleVisitFields()" class="agent-aptek-only">
             <option value="hekim" class="agent-doc-only">Həkim Ziyarəti</option>
             <option value="yeni_aptek" class="agent-aptek-only">Yeni Aptek Qeydiyyatı</option>
         </select>
@@ -807,7 +797,7 @@
         </div>
 
         <!-- Yeni Aptek -->
-        <div id="yeniAptekFields" class="visit-section hidden">
+        <div id="yeniAptekFields" class="visit-section hidden agent-aptek-only">
             <label>Aptekin Adı:</label><input type="text" id="newPharmacyName">
             <label>Müdirin Adı:</label><input type="text" id="newManagerName">
             <label>Əlaqə Nömrəsi:</label><input type="text" id="newManagerPhone">
@@ -830,6 +820,15 @@
     <div class="card agent-aptek-only">
         <h3>🎒 Çantamdakı Dərman Stoku</h3>
         <div id="stockList"></div>
+    </div>
+    
+    <!-- 4. AGENT MAP TAB FOR DIRECTIONS -->
+    <div class="card">
+        <h3>📍 Xəritə və Yol Tərifi</h3>
+        <label>Rayon Seçin:</label>
+        <select id="agentMapRegionSelect" onchange="filterAgentMapLocations()"><option value="all">Bütün Rayonlar</option></select>
+        <div id="agentMapListContainer" style="margin-top: 10px; margin-bottom: 10px; max-height: 200px; overflow-y: auto;"></div>
+        <div id="agentLocalMap" style="width: 100%; height: 250px; border-radius: 12px; border: 1px solid #cbd5e1; z-index: 1;"></div>
     </div>
 
     <button class="logout-btn" style="margin-top: 20px;" onclick="logout()">🚪 Sistemdən Çıxış</button>
@@ -856,7 +855,6 @@
     </div>
 </div>
 
-<!-- Aptek Seçimi Üçün Xəritə Modalı -->
 <div id="aptekMapModal" class="fullscreen-modal hidden">
     <div class="modal-content" style="max-width: 90vw; height: 80vh; display: flex; flex-direction: column;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
@@ -867,7 +865,7 @@
     </div>
 </div>
 
-<div id="navChoiceModal" class="fullscreen-modal hidden">
+<div id="navChoiceModal" class="fullscreen-modal hidden" style="z-index: 3000;">
     <div class="modal-content" style="text-align: center; max-width: 320px;">
         <h3 style="margin-top:0; border:none; justify-content:center;">🗺️ Naviqasiya Seçin</h3>
         <a id="gmapsLinkBtn" href="#" target="_blank" class="web-link-btn" style="background: #4285F4; margin-top:0;" onclick="closeNavChoiceModal()">🗺️ Google Maps ilə Aç</a>
@@ -876,9 +874,11 @@
     </div>
 </div>
 
+<!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
-    let map = null; let adminMap = null; let adminMarkersGroup = null; let aptekSelectMap = null;
+    let adminMap = null; let adminMarkersGroup = null; let aptekSelectMap = null; let agentLocalMap = null; let agentLocalMarkersGroup = null;
     let currentUsername = ""; let currentFullName = ""; let currentRole = ""; 
     let activeCart = []; let selectedNavCoords = { lat: 0, lon: 0 };
     
@@ -897,20 +897,26 @@
     };
 
     let userRoles = {
-        "Şahin (Rəhbər)": { role: "boss", pass: "123" },
-        "Samir (Rəhbər)": { role: "boss", pass: "123" },
-        "İsmayıl (Admin)": { role: "admin", pass: "123" },
-        "Rüfət (Qrup Rəhbəri)": { role: "pred", pass: "123" },
-        "Bakı-aptek 1": { role: "aptek_agent", pass: "1" },
-        "Bakı-aptek 2": { role: "aptek_agent", pass: "2" },
-        "Quliyeva Tamasa": { role: "doc_agent", pass: "3" },
-        "Məhərrəmova Lamiye": { role: "doc_agent", pass: "4" },
-        "Məmmədov Vaqif": { role: "doc_agent", pass: "5" }
+        "sahin": { fullName: "Şahin (Rəhbər)", role: "boss", pass: "123" },
+        "samir": { fullName: "Samir (Rəhbər)", role: "boss", pass: "123" },
+        "ismayil": { fullName: "İsmayıl (Admin)", role: "admin", pass: "123" },
+        "rufet": { fullName: "Rüfət (Qrup Rəhbəri)", role: "pred", pass: "123" },
+        "baki1": { fullName: "Bakı-aptek 1", role: "aptek_agent", pass: "1" },
+        "baki2": { fullName: "Bakı-aptek 2", role: "aptek_agent", pass: "2" },
+        "tamasa": { fullName: "Quliyeva Tamasa", role: "doc_agent", pass: "3" },
+        "lamiye": { fullName: "Məhərrəmova Lamiye", role: "doc_agent", pass: "4" },
+        "vaqif": { fullName: "Məmmədov Vaqif", role: "doc_agent", pass: "5" }
     };
 
-    let distributorList = ["Hüseynli Anar (Gəncə)", "Famil Ələkbərov (Gəncə)", "Abbaslı Araz (Şirvan)", "Məhiyyətdin Sultanov (Şimal)", "Məmmədzadə Faiq (Şəki)"];
+    let distributorList = [
+        "Hüseynli Anar (Gəncə)", 
+        "Famil Ələkbərov (Gəncə)", 
+        "Abbaslı Araz (Şirvan)", 
+        "Məhiyyətdin Sultanov (Şimal)", 
+        "Məmmədzadə Faiq (Şəki)"
+    ];
     
-    function getAgentsByRole(roleType) { return Object.keys(userRoles).filter(k => userRoles[k].role === roleType); }
+    function getAgentsByRole(roleType) { return Object.keys(userRoles).filter(k => userRoles[k].role === roleType).map(k => userRoles[k].fullName); }
     let aptekAgents = getAgentsByRole('aptek_agent');
     let docAgents = getAgentsByRole('doc_agent');
     let allAgents = [...aptekAgents, ...docAgents];
@@ -924,15 +930,14 @@
     aptekAgents.forEach(ag => { agentStocks[ag] = [15, 20, 10, 15, 12, 10, 14, 10, 12]; agentBudgets[ag] = 150; });
     docAgents.forEach(ag => { agentStocks[ag] = [0,0,0,0,0,0,0,0,0]; agentBudgets[ag] = 0; });
 
-    let pharmacyDebts = {}; // Borclar sıfırlandı
+    let pharmacyDebts = {};
     let visitReports = [];
     let sampleLocations = [
         { name: "Zəfər Aptek", region: "Yasamal", agent: "Bakı-aptek 2", type: "Aptek", lat: 40.38, lon: 49.83, address: "Yasamal rayonu" },
         { name: "Dr. Elçin", clinic: "HB Güvən", region: "Nəsimi", agent: "Quliyeva Tamasa", type: "Həkim", lat: 40.39, lon: 49.84, address: "Nəsimi rayonu" }
     ];
     
-    // DBs
-    let realizationDB = []; // { id, date, agent, drug, givenQty, targetQty, directSold, netSold, compPrice, distBonus }
+    let realizationDB = []; 
     let distributorAdvances = {}; 
     distributorList.forEach(dist => { distributorAdvances[dist] = { totalGiven: 0, spent: 0 }; });
     let predDB = [];
@@ -955,8 +960,11 @@
                     if(dist > 50) { alert(`🚨 GEOFENCE BLOKU 🚨\nSiz obyektdən çox uzaqdasınız! Məsafə: ${Math.round(dist)} metr.`); } 
                     else { onSuccessCallback(pos.coords.latitude, pos.coords.longitude); }
                 } else { onSuccessCallback(pos.coords.latitude, pos.coords.longitude); }
-            }, function(err) { alert("GPS alınmadı!"); }, { enableHighAccuracy: true });
-        } else { alert("GPS dəstəklənmir."); }
+            }, function(err) { 
+                alert("GPS məlumatı alına bilmədi. Zəhmət olmasa cihazın məkan icazələrini yoxlayın."); 
+                onSuccessCallback(40.4093, 49.8671);
+            }, { enableHighAccuracy: true });
+        } else { alert("GPS dəstəklənmir."); onSuccessCallback(40.4093, 49.8671); }
     }
     
     function getDistanceInMeters(lat1, lon1, lat2, lon2) {
@@ -1044,7 +1052,7 @@
             localStorage.removeItem("crm_pass");
         }
 
-        currentUsername = val; currentFullName = val; currentRole = uInfo.role;
+        currentUsername = val; currentFullName = uInfo.fullName; currentRole = uInfo.role;
         document.getElementById("loginScreen").classList.add("hidden");
 
         if(currentRole.includes('agent')) {
@@ -1056,11 +1064,18 @@
             document.querySelectorAll('.agent-aptek-only').forEach(el => el.classList.toggle('hidden', currentRole !== 'aptek_agent'));
             document.querySelectorAll('.agent-doc-only').forEach(el => el.classList.toggle('hidden', currentRole !== 'doc_agent'));
             
-            document.getElementById('visitType').value = (currentRole === 'doc_agent') ? 'hekim' : 'yeni_aptek';
+            if(currentRole === 'doc_agent') {
+                document.getElementById('visitType').value = 'hekim';
+                document.getElementById('visitType').classList.add('hidden');
+            } else {
+                document.getElementById('visitType').value = 'yeni_aptek';
+            }
             toggleVisitFields();
             
             initDropdowns(); setupAgentRegions(); 
             if(currentRole === 'aptek_agent') updateAgentStockDisplay();
+            
+            setTimeout(() => { initAgentLocalMap(); }, 200);
         } else {
             document.getElementById("adminLayout").classList.remove("hidden");
             document.getElementById("hamburgerBtn").style.display = "block";
@@ -1068,7 +1083,6 @@
             document.getElementById("mobileProfileName").innerText = currentFullName;
             
             let tm = getCurrentMonthString(); let td = getTodayDateString();
-            
             let today = new Date();
             let firstDay = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
             
@@ -1084,7 +1098,7 @@
             initDropdowns(); applyRolePermissions();
             setTimeout(() => { 
                 initAdminMap(); 
-                let dTab = (currentRole === 'boss') ? 'dash-region' : (currentRole === 'admin' ? 'dash-master' : 'pred-manager');
+                let dTab = (currentRole === 'boss' || currentRole === 'admin') ? 'dash-region' : 'pred-manager';
                 switchAdminTab(dTab, document.getElementById('menu-'+dTab)); 
             }, 200);
         }
@@ -1203,7 +1217,7 @@
         filtered.forEach(r => {
             let totalSold = r.directSold + r.netSold;
             let actualPct = r.targetQty > 0 ? ((totalSold / r.targetQty) * 100).toFixed(1) : 0;
-            let debtToComp = r.directSold * r.compPrice;
+            let debtToComp = totalSold * r.compPrice; 
             let bonusFromNet = r.netSold * r.distBonus;
             let finalBal = debtToComp - bonusFromNet; 
             
@@ -1248,7 +1262,7 @@
         });
         
         let tTarget = 0, tSold = 0;
-        let compDebtData = {}; // by dist
+        let compDebtData = {}; 
         let productQtyMap = {};
         
         relData.forEach(r => {
@@ -1256,14 +1270,16 @@
             let totalSold = r.directSold + r.netSold;
             tSold += totalSold;
             
-            let debtToComp = r.directSold * r.compPrice;
+            let debtToComp = totalSold * r.compPrice;
             let bonusFromNet = r.netSold * r.distBonus;
             let finalBal = debtToComp - bonusFromNet;
             
-            if(!compDebtData[r.agent]) compDebtData[r.agent] = { stock: 0, target: 0, sold: 0, debt: 0 };
+            if(!compDebtData[r.agent]) compDebtData[r.agent] = { stock: 0, target: 0, sold: 0, debt: 0, direct: 0, net: 0 };
             compDebtData[r.agent].stock += r.givenQty; 
             compDebtData[r.agent].target += r.targetQty;
             compDebtData[r.agent].sold += totalSold; 
+            compDebtData[r.agent].direct += r.directSold; 
+            compDebtData[r.agent].net += r.netSold; 
             compDebtData[r.agent].debt += finalBal;
             
             productQtyMap[r.drug] = (productQtyMap[r.drug] || 0) + totalSold;
@@ -1294,14 +1310,47 @@
             }
         });
 
-        let labels = [], dataVals = [];
-        for(let d in compDebtData) { labels.push(d.split(" ")[0]); dataVals.push(compDebtData[d].debt); }
+        let labels = [], dataVals = [], directVals = [], netVals = [];
+        for(let d in compDebtData) { 
+            labels.push(d.split(" ")[0]); 
+            dataVals.push(compDebtData[d].sold); 
+            directVals.push(compDebtData[d].direct);
+            netVals.push(compDebtData[d].net);
+        }
+        
         if(chartDistPerf) chartDistPerf.destroy();
-        chartDistPerf = new Chart(document.getElementById('distPerfChart'), { type: 'bar', data: { labels: labels, datasets: [{ label: 'Şirkətə Borc (₼)', data: dataVals, backgroundColor: '#3b82f6', borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
+        chartDistPerf = new Chart(document.getElementById('distPerfChart'), { 
+            type: 'bar', 
+            data: { 
+                labels: labels, 
+                datasets: [{ label: 'Cəmi Satış (Qutu)', data: dataVals, backgroundColor: '#3b82f6', borderRadius: 4 }] 
+            }, 
+            options: { 
+                responsive: true, maintainAspectRatio: false, 
+                plugins: { 
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let idx = context.dataIndex;
+                                return [
+                                    `Cəmi Satış: ${dataVals[idx]} qutu`,
+                                    `Öz Satdığı: ${directVals[idx]} qutu`,
+                                    `Şəbəkədən: ${netVals[idx]} qutu`
+                                ];
+                            }
+                        }
+                    }
+                } 
+            } 
+        });
 
         let pListHtml = ""; let maxQty = Math.max(...Object.values(productQtyMap), 1);
-        let sorted = Object.keys(productQtyMap).sort((a,b) => productQtyMap[b] - productQtyMap[a]).slice(0,5);
-        sorted.forEach(p => { let pct = (productQtyMap[p]/maxQty)*100; pListHtml += `<div class="progress-item"><div class="progress-info"><span>${p}</span><span>${productQtyMap[p]} qut</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div></div>`; });
+        let sorted = Object.keys(productQtyMap).sort((a,b) => productQtyMap[b] - productQtyMap[a]);
+        sorted.forEach(p => { 
+            let pct = (productQtyMap[p]/maxQty)*100; 
+            pListHtml += `<div class="progress-item"><div class="progress-info"><span>${p}</span><span>${productQtyMap[p]} qut</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div></div>`; 
+        });
         document.getElementById("distProductShareList").innerHTML = pListHtml || "<span style='font-size:12px; color:gray;'>Məlumat yoxdur.</span>";
     }
 
@@ -1401,11 +1450,48 @@
         }, false); 
     }
 
+    function initAdminMap() {
+        if(adminMap) adminMap.remove();
+        adminMap = L.map('adminMap').setView([40.4093, 49.8671], 11);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(adminMap);
+        adminMarkersGroup = L.featureGroup().addTo(adminMap);
+    }
+
+    function filterAdminMap() {
+        if(!adminMap || !adminMarkersGroup) return;
+        adminMarkersGroup.clearLayers();
+        let t = document.getElementById("adminMapTypeSelect").value;
+        let d = document.getElementById("adminMapDateSelect").value;
+        let bounds = [];
+        let listContainer = document.getElementById("adminMapList");
+        listContainer.innerHTML = "";
+
+        if(currentRole === 'pred' && t === 'all') t = 'Həkim';
+
+        sampleLocations.forEach(loc => {
+            if(t !== 'all' && loc.type !== t) return;
+            if(currentRole === 'pred' && !docAgents.includes(loc.agent)) return;
+
+            let marker = L.marker([loc.lat, loc.lon]).addTo(adminMarkersGroup);
+            marker.bindPopup(`<b>${loc.name}</b><br>${loc.region} - ${loc.agent}`);
+            bounds.push([loc.lat, loc.lon]);
+
+            listContainer.innerHTML += `
+                <div style="display:flex; justify-content:space-between; align-items:center; padding: 8px; border-bottom: 1px solid #e2e8f0; font-size:13px;">
+                    <div><b>[${loc.type}] ${loc.name}</b><br><small style="color:var(--gray)">${loc.agent} - ${loc.region}</small></div>
+                    <button style="width:auto; margin:0; padding:6px 10px; font-size:11px; background:#0ea5e9; box-shadow:none;" onclick="openNavDirectModal(${loc.lat},${loc.lon})">🚗 Yol Tərifi</button>
+                </div>
+            `;
+        });
+        if(bounds.length > 0) adminMap.fitBounds(bounds, {padding: [30,30]});
+    }
+
     function toggleVisitFields() {
         let t = document.getElementById("visitType").value;
         document.getElementById("hekimFields").classList.toggle("hidden", t !== 'hekim');
         document.getElementById("yeniAptekFields").classList.toggle("hidden", t !== 'yeni_aptek');
     }
+    
     function toggleDoctorAgreement() {
         let a = document.getElementById("doctorAgreement").value;
         let div = document.getElementById("docAgreedAmountDiv");
@@ -1420,12 +1506,20 @@
         
         let keys = Object.keys(productsDB); let idx = keys.indexOf(drug);
         let ex = activeCart.filter(i => i.drug === drug).reduce((s,i) => s+i.qty, 0);
-        if(agentStocks[currentFullName] && agentStocks[currentFullName][idx] < (ex+qty)) { alert("Çantada stok yoxdur!"); return; }
+        
+        try {
+            if(agentStocks[currentFullName] && agentStocks[currentFullName][idx] < (ex+qty)) { 
+                alert("Çantada stok yoxdur!"); return; 
+            }
+        } catch(e) {
+            console.error(e); alert("Stok yoxlanışı xətası!"); return;
+        }
         
         let price = productsDB[drug].price; let bonus = mode === 'nagd' ? qty*productsDB[drug].bonus : 0;
         activeCart.push({ drug: drug, qty: qty, mode: mode, total: qty*price, bonus: bonus, net: qty*price - bonus });
         renderNewCart();
     }
+    
     function renderNewCart() {
         let c = document.getElementById("newCartList"); c.innerHTML = "";
         activeCart.forEach((i, idx) => { c.innerHTML += `<div class="cart-item-row"><span>${i.drug} - ${i.qty} qut (${i.mode})</span><button style="width:auto; padding:4px 8px; font-size:11px; margin:0;" onclick="activeCart.splice(${idx},1); renderNewCart()">Sil</button></div>`; });
@@ -1450,7 +1544,10 @@
                     alert("Ziyarət qeydə alındı. Pred tələbi rəhbərə göndərildi.");
                 } else { alert("Ziyarət qeydə alındı."); }
                 
-                if(!sampleLocations.find(l => l.name === doc)) sampleLocations.push({ name: doc, clinic: clin, region: r, agent: currentFullName, type: "Həkim", lat: lat, lon: lon });
+                if(!sampleLocations.find(l => l.name === doc)) {
+                    sampleLocations.push({ name: doc, clinic: clin, region: r, agent: currentFullName, type: "Həkim", lat: lat, lon: lon });
+                    filterAgentMapLocations();
+                }
                 document.getElementById("doctorName").value = ""; document.getElementById("clinicName").value = "";
                 
             } else {
@@ -1459,50 +1556,106 @@
                 
                 let nStock = {};
                 activeCart.forEach(i => {
-                    let idx = Object.keys(productsDB).indexOf(i.drug);
-                    agentStocks[currentFullName][idx] -= i.qty;
-                    if(i.mode === 'nisye') nStock[i.drug] = (nStock[i.drug]||0) + i.qty;
-                    visitReports.push({ date: d, timeOnly: time, agent: currentFullName, region: r, obj: apt, type: `Yeni Aptek (${i.mode})`, drug: i.drug, qty: i.qty, netAmount: i.net });
+                    try {
+                        let idx = Object.keys(productsDB).indexOf(i.drug);
+                        agentStocks[currentFullName][idx] -= i.qty;
+                        if(i.mode === 'nisye') nStock[i.drug] = (nStock[i.drug]||0) + i.qty;
+                        let rptType = i.mode === 'nisye' ? "Yeni Aptek (Nisyə)" : "Yeni Aptek (Nağd)";
+                        let rptNet = i.mode === 'nisye' ? 0 : i.net;
+                        visitReports.push({ date: d, timeOnly: time, agent: currentFullName, region: r, obj: apt, type: rptType, drug: i.drug, qty: i.qty, netAmount: rptNet });
+                    } catch(e) { console.error(e); }
                 });
                 pharmacyDebts[apt] = { region: r, agent: currentFullName, lat: lat, lon: lon, stock: nStock };
                 sampleLocations.push({ name: apt, region: r, agent: currentFullName, type: "Aptek", lat: lat, lon: lon });
                 
                 document.getElementById("newPharmacyName").value = ""; activeCart = []; renderNewCart();
                 updateAgentStockDisplay(); populateStockPharmacies(); alert("Aptek qeydə alındı!");
+                filterAgentMapLocations();
             }
         }, false);
     }
+    
+    function executePharmacyStockOp() {
+        let pName = document.getElementById("stockPharmacySelect").value;
+        let opType = document.getElementById("pharmacyOpType").value;
+        let drug = document.getElementById("pharmacyStockDrug").value;
+        let qty = parseInt(document.getElementById("pharmacyStockQty").value) || 0;
+        let selectedDate = getTodayDateString();
+        let timeNow = new Date().toLocaleTimeString('az-AZ', { hour12: false });
 
-    function filterRouteReport() {
-        let ag = document.getElementById("filterRouteAgent").value; let dt = document.getElementById("filterRouteDate").value;
-        let tbody = document.getElementById("routeTableBody"); if(!tbody) return;
-        tbody.innerHTML = "";
-        let rep = visitReports.filter(r => r.date === dt && (ag === 'all' || r.agent === ag));
-        if(rep.length===0) { tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Məlumat yoxdur.</td></tr>`; return; }
-        rep.forEach(r => { tbody.innerHTML += `<tr><td>${r.date}<br><small>${r.timeOnly}</small></td><td>${r.agent}</td><td>${r.region}</td><td><b>${r.obj}</b></td><td>${r.type} ${r.drug!=='-'?r.drug:''}</td></tr>`; });
+        if(!pName || qty <= 0) { alert("Məlumatları düzgün daxil edin!"); return; }
+
+        let pData = pharmacyDebts[pName];
+        let pInfo = productsDB[drug];
+
+        requestGPSAndCheckGeofence(pData.lat, pData.lon, function() {
+            if(opType === 'nagdlashdirma_serbest' || opType === 'nagdlashdirma_resept') {
+                let currentDebt = pData.stock[drug] || 0;
+                if(currentDebt < qty) { alert(`Bu aptekdə cəmi ${currentDebt} qutu ${drug} nisyə var!`); return; }
+                pData.stock[drug] -= qty;
+                
+                let totalAmount = qty * pInfo.price;
+                let bonusAmount = (opType === 'nagdlashdirma_serbest') ? (qty * pInfo.bonus) : 0;
+                let netAmount = totalAmount - bonusAmount;
+                let opLabel = (opType === 'nagdlashdirma_serbest') ? "Nağdlaşdırma (Bonuslu)" : "Nağdlaşdırma (Bonussuz)";
+
+                visitReports.push({ date: selectedDate, timeOnly: timeNow, agent: currentFullName, region: pData.region, obj: pName, type: opLabel, drug: drug, qty: qty, totalAmount: totalAmount, bonusAmount: bonusAmount, netAmount: netAmount });
+                alert(`Uğurlu Nağdlaşdırma!\nSaf Net Qazanc: ${netAmount}₼`);
+            } else {
+                let keys = Object.keys(productsDB);
+                let idx = keys.indexOf(drug);
+                if(agentStocks[currentFullName][idx] < qty) { alert("Çantada kifayət qədər dərman yoxdur!"); return; }
+                agentStocks[currentFullName][idx] -= qty;
+                pData.stock[drug] = (pData.stock[drug] || 0) + qty;
+                
+                visitReports.push({ date: selectedDate, timeOnly: timeNow, agent: currentFullName, region: pData.region, obj: pName, type: "Əlavə Nisyə", drug: drug, qty: qty, totalAmount: qty * pInfo.price, bonusAmount: 0, netAmount: 0 });
+                alert(`Uğurlu Əməliyyat!\n${qty} qutu ${drug} nisyə verildi.`);
+            }
+            updateAgentStockDisplay(); showPharmacyStockDetails();
+        });
     }
 
-    function initAdminMap() {
-        if(adminMap) adminMap.remove();
-        adminMap = L.map('adminMap').setView([40.4093, 49.8671], 11);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(adminMap);
-        adminMarkersGroup = L.featureGroup().addTo(adminMap);
+    function initAgentLocalMap() {
+        if(agentLocalMap) { agentLocalMap.remove(); }
+        agentLocalMap = L.map('agentLocalMap').setView([40.4093, 49.8671], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(agentLocalMap);
+        agentLocalMarkersGroup = L.featureGroup().addTo(agentLocalMap);
+        filterAgentMapLocations();
     }
 
-    function filterAdminMap() {
-        if(!adminMap || !adminMarkersGroup) return;
-        adminMarkersGroup.clearLayers();
-        let t = document.getElementById("adminMapTypeSelect").value;
-        let d = document.getElementById("adminMapDateSelect").value;
+    function filterAgentMapLocations() {
+        if(!agentLocalMap || !agentLocalMarkersGroup) return;
+        agentLocalMarkersGroup.clearLayers();
+        let selectedRegion = document.getElementById("agentMapRegionSelect").value;
+        let listContainer = document.getElementById("agentMapListContainer");
+        listContainer.innerHTML = "";
+        
         let bounds = [];
+        let hasLoc = false;
         
         sampleLocations.forEach(loc => {
-            if(t !== 'all' && loc.type !== t) return;
-            let marker = L.marker([loc.lat, loc.lon]).addTo(adminMarkersGroup);
-            marker.bindPopup(`<b>${loc.name}</b><br>${loc.region} - ${loc.agent}`);
-            bounds.push([loc.lat, loc.lon]);
+            if(loc.agent === currentFullName && (selectedRegion === "all" || loc.region === selectedRegion)) {
+                hasLoc = true;
+                let marker = L.marker([loc.lat, loc.lon]).addTo(agentLocalMarkersGroup);
+                let popupContent = `<b>[${loc.type}] ${loc.name}</b><br>${loc.region}<br><br>` +
+                    `<a href="#" onclick="openNavDirectModal(${loc.lat},${loc.lon}); return false;" class="web-link-btn" style="margin-top:5px; padding:6px; font-size:11px;">🚗 Yol Tərifi Al</a>`;
+                marker.bindPopup(popupContent);
+                bounds.push([loc.lat, loc.lon]);
+
+                listContainer.innerHTML += `
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding: 8px; border-bottom: 1px solid #e2e8f0; font-size:13px;">
+                        <div><b>[${loc.type}] ${loc.name}</b><br><small style="color:var(--gray)">${loc.region}</small></div>
+                        <button style="width:auto; margin:0; padding:6px 10px; font-size:11px; background:#0ea5e9; box-shadow:none;" onclick="openNavDirectModal(${loc.lat},${loc.lon})">🚗 Yol Tərifi</button>
+                    </div>
+                `;
+            }
         });
-        if(bounds.length > 0) adminMap.fitBounds(bounds, {padding: [30,30]});
+
+        if(!hasLoc) {
+            listContainer.innerHTML = `<div style="padding:10px; text-align:center; color:#64748b; font-size:12px;">Bu rayonda qeydiyyat yoxdur.</div>`;
+        } else if(bounds.length > 0) {
+            agentLocalMap.fitBounds(bounds, { padding: [20, 20] });
+        }
     }
 
     function openAptekSelectMap() {
@@ -1539,6 +1692,72 @@
             showPharmacyStockDetails();
         }
         closeAptekSelectMap();
+    }
+
+    function populateStockPharmacies() {
+        let reg = document.getElementById("stockRegionSelect").value;
+        let pharmSelect = document.getElementById("stockPharmacySelect");
+        pharmSelect.innerHTML = `<option value="">-- Aptek Seçin --</option>`;
+        document.getElementById("pharmacyStockDetailView").classList.add("hidden");
+        if(!reg) return;
+        for(let pName in pharmacyDebts) {
+            let pData = pharmacyDebts[pName];
+            if(pData.region === reg && pData.agent === currentFullName) {
+                pharmSelect.innerHTML += `<option value="${pName}">${pName}</option>`;
+            }
+        }
+    }
+
+    function showPharmacyStockDetails() {
+        let pName = document.getElementById("stockPharmacySelect").value;
+        let detailView = document.getElementById("pharmacyStockDetailView");
+        let contentDiv = document.getElementById("pharmacyStockListContent");
+        if(!pName) { detailView.classList.add("hidden"); return; }
+
+        let pData = pharmacyDebts[pName];
+        let text = `<b style="color:var(--primary-dark);">📦 Mövcud Nisyə Mallar:</b><br><ul style="margin:5px 0 0 20px; padding:0;">`;
+        let hasStock = false;
+        for(let d in pData.stock) {
+            if(pData.stock[d] > 0) { text += `<li>${d}: <b>${pData.stock[d]} qutu</b></li>`; hasStock = true; }
+        }
+        if(!hasStock) { text = `<i>Bu aptekdə hazırda nisyə mal yoxdur.</i>`; } else { text += `</ul>`; }
+        contentDiv.innerHTML = text;
+        detailView.classList.remove("hidden");
+    }
+
+    function openNavDirectModal(lat, lon) {
+        selectedNavCoords = { lat: lat, lon: lon };
+        document.getElementById("gmapsLinkBtn").setAttribute("href", `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`);
+        document.getElementById("wazeLinkBtn").setAttribute("href", `https://www.waze.com/ul?ll=${lat},${lon}&navigate=yes`);
+        document.getElementById("navChoiceModal").classList.remove("hidden");
+    }
+    function closeNavChoiceModal() { document.getElementById("navChoiceModal").classList.add("hidden"); }
+
+    function openAgentReportModal() { document.getElementById("agentReportDate").value = getTodayDateString(); renderAgentReport(); document.getElementById("agentReportModal").classList.remove("hidden"); }
+    function closeAgentReportModal() { document.getElementById("agentReportModal").classList.add("hidden"); }
+    
+    function renderAgentReport() {
+        let selectedDate = document.getElementById("agentReportDate").value; 
+        let c = document.getElementById("agentReportContent"); 
+        c.innerHTML = "";
+        let filtered = visitReports.filter(r => r.agent === currentFullName && r.date === selectedDate);
+        
+        if(filtered.length === 0) { c.innerHTML = `<p style="text-align:center; color:#64748b; padding: 20px;">Bu tarix üçün hesabat yoxdur.</p>`; return; }
+        
+        let html = `<div class="table-container" style="border:none; margin-top:0; box-shadow: 0 2px 8px rgba(0,0,0,0.05);"><table class="data-table"><thead><tr><th>Saat</th><th>Obyekt</th><th>Əməliyyat</th><th>Net ₼</th></tr></thead><tbody>`;
+        let myNetSum = 0;
+        filtered.forEach(r => { 
+            let net = r.netAmount || 0; 
+            myNetSum += net; 
+            let netLabel = net > 0 ? `<span style="color:#10b981; font-weight:bold;">${net} ₼</span>` : '-';
+            html += `<tr><td>${r.timeOnly}</td><td><b>${r.obj}</b><br><small style="color:#64748b">${r.drug !== '-' ? r.drug + ' ('+r.qty+')' : ''}</small></td><td>${r.type}</td><td>${netLabel}</td></tr>`; 
+        });
+        html += `</tbody></table></div>`;
+        
+        if(currentRole === 'aptek_agent') {
+            html += `<div class="calc-total-box" style="margin-top:16px;">Gündəlik Nağd Saf Qazanc: <b style="color:#10b981; font-size:16px;">${myNetSum} ₼</b></div>`;
+        }
+        c.innerHTML = html;
     }
 
     function renderAgingReport() {
@@ -1632,9 +1851,17 @@
             }
         }
         
-        // Remove empty static data string
         let debtDisplay = (curDebtQty > 0) ? `<br><span style="color:#ef4444; margin-top:8px; display:inline-block;">Nisyə Verilib Gözləmədə Olan (Seçilmiş işçiyə görə ümumi dövr): <b>${curDebtQty} qutu (${curDebtAzn} ₼)</b></span>` : "";
         if(calcBox) calcBox.innerHTML = `<span style="color:var(--primary-dark); font-size:15px;">📊 Gündəlik Maliyyə İcraatı:</span><br>Nağd Satış: <b>${totalCashQty} qut</b> | Verilən Bonus: <b>${totalBonusSum} ₼</b> | <span style="color:#10b981;">Saf Net Qazanc: <b>${totalNetSum} ₼</b></span>${debtDisplay}`;
+    }
+    
+    function filterRouteReport() {
+        let ag = document.getElementById("filterRouteAgent").value; let dt = document.getElementById("filterRouteDate").value;
+        let tbody = document.getElementById("routeTableBody"); if(!tbody) return;
+        tbody.innerHTML = "";
+        let rep = visitReports.filter(r => r.date === dt && (ag === 'all' || r.agent === ag));
+        if(rep.length===0) { tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Məlumat yoxdur.</td></tr>`; return; }
+        rep.forEach(r => { tbody.innerHTML += `<tr><td>${r.date}<br><small>${r.timeOnly}</small></td><td>${r.agent}</td><td>${r.region}</td><td><b>${r.obj}</b></td><td>${r.type} ${r.drug!=='-'?r.drug:''}</td></tr>`; });
     }
 
     function renderAgentStockTable() {
@@ -1739,7 +1966,7 @@
     function loadAgentDataForEdit() {
         let agentFullName = document.getElementById("editAgentSelect").value;
         if(agentFullName === "all") return;
-        let username = Object.keys(userRoles).find(k => k === agentFullName);
+        let username = Object.keys(userRoles).find(k => userRoles[k].fullName === agentFullName);
         if(!username) return;
         document.getElementById("editAgentName").value = agentFullName;
         document.getElementById("editAgentPass").value = userRoles[username].pass;
@@ -1751,13 +1978,12 @@
         let newPass = document.getElementById("editAgentPass").value.trim();
         
         if(oldFullName === "all" || !newFullName) return;
-        let username = Object.keys(userRoles).find(k => k === oldFullName);
+        let username = Object.keys(userRoles).find(k => userRoles[k].fullName === oldFullName);
         if(!username) return;
 
         if(oldFullName !== newFullName) {
             let rInfo = userRoles[username];
-            userRoles[newFullName] = { role: rInfo.role, pass: newPass };
-            delete userRoles[oldFullName];
+            userRoles[username] = { fullName: newFullName, role: rInfo.role, pass: newPass };
             
             aptekAgents = getAgentsByRole('aptek_agent');
             docAgents = getAgentsByRole('doc_agent');
@@ -1785,9 +2011,9 @@
         let role = document.getElementById("newUserRole").value;
         
         if(!fName || !pass) { alert("Bütün xanaları doldurun!"); return; }
-        if(userRoles[fName]) { alert("Bu istifadəçi (ad) artıq mövcuddur!"); return; }
+        if(userRoles[uName]) { alert("Bu istifadəçi artıq mövcuddur!"); return; }
         
-        userRoles[fName] = { role: role, pass: pass };
+        userRoles[uName] = { fullName: fName, role: role, pass: pass };
         
         if(role.includes('agent')) {
             let pCount = Object.keys(productsDB).length;
@@ -1877,50 +2103,10 @@
     
     function setupAgentRegions() {
         let r = agentRegions[currentFullName] || [];
-        let s1 = document.getElementById("regionSelect"), s2 = document.getElementById("stockRegionSelect");
+        let s1 = document.getElementById("regionSelect"), s2 = document.getElementById("stockRegionSelect"), s3 = document.getElementById("agentMapRegionSelect");
         if(s1) { s1.innerHTML = ""; r.forEach(x => s1.innerHTML += `<option value="${x}">${x}</option>`); }
         if(s2) { s2.innerHTML = `<option value="">-- Seç --</option>`; r.forEach(x => s2.innerHTML += `<option value="${x}">${x}</option>`); }
-    }
-    
-    function executePharmacyStockOp() {
-        let pName = document.getElementById("stockPharmacySelect").value;
-        let opType = document.getElementById("pharmacyOpType").value;
-        let drug = document.getElementById("pharmacyStockDrug").value;
-        let qty = parseInt(document.getElementById("pharmacyStockQty").value) || 0;
-        let selectedDate = getTodayDateString();
-        let timeNow = new Date().toLocaleTimeString('az-AZ', { hour12: false });
-        let fullDateTime = `${selectedDate} ${timeNow}`;
-
-        if(!pName || qty <= 0) { alert("Məlumatları düzgün daxil edin!"); return; }
-
-        let pData = pharmacyDebts[pName];
-        let pInfo = productsDB[drug];
-
-        requestGPSAndCheckGeofence(pData.lat, pData.lon, function() {
-            if(opType === 'nagdlashdirma_serbest' || opType === 'nagdlashdirma_resept') {
-                let currentDebt = pData.stock[drug] || 0;
-                if(currentDebt < qty) { alert(`Bu aptekdə cəmi ${currentDebt} qutu ${drug} var!`); return; }
-                pData.stock[drug] -= qty;
-                
-                let totalAmount = qty * pInfo.price;
-                let bonusAmount = (opType === 'nagdlashdirma_serbest') ? (qty * pInfo.bonus) : 0;
-                let netAmount = totalAmount - bonusAmount;
-                let opLabel = (opType === 'nagdlashdirma_serbest') ? "Nağdlaşdırma (Bonuslu)" : "Nağdlaşdırma (Bonussuz)";
-
-                visitReports.push({ date: selectedDate, dateTime: fullDateTime, timeOnly: timeNow, agent: currentFullName, region: pData.region, obj: pName, type: opLabel, drug: drug, qty: qty, totalAmount: totalAmount, bonusAmount: bonusAmount, netAmount: netAmount, doctorPay: 0, isCashSale: true });
-                alert(`Uğurlu Nağdlaşdırma!\nSaf Net Qazanc: ${netAmount}₼`);
-            } else {
-                let keys = Object.keys(productsDB);
-                let idx = keys.indexOf(drug);
-                if(agentStocks[currentFullName][idx] < qty) { alert("Kifayət qədər dərman yoxdur!"); return; }
-                agentStocks[currentFullName][idx] -= qty;
-                pData.stock[drug] = (pData.stock[drug] || 0) + qty;
-                
-                visitReports.push({ date: selectedDate, dateTime: fullDateTime, timeOnly: timeNow, agent: currentFullName, region: pData.region, obj: pName, type: "Əlavə Nisyə", drug: drug, qty: qty, totalAmount: qty * pInfo.price, bonusAmount: 0, netAmount: 0, doctorPay: 0, isCashSale: false });
-                alert(`Uğurlu Əməliyyat!\n${qty} qutu ${drug} nisyə verildi.`);
-            }
-            updateAgentStockDisplay(); showPharmacyStockDetails();
-        });
+        if(s3) { s3.innerHTML = `<option value="all">Bütün Rayonlar</option>`; r.forEach(x => s3.innerHTML += `<option value="${x}">${x}</option>`); }
     }
     
     function saveBossPass() {
@@ -1928,43 +2114,6 @@
         if(np) { userRoles[currentUsername].pass = np; alert("Şifrə dəyişdirildi!"); document.getElementById("bossNewPass").value = ""; }
     }
 
-    // Agent Reports
-    function openAgentReportModal() { document.getElementById("agentReportDate").value = getTodayDateString(); currentReportTab = 'pharm'; switchAgentReportTab('pharm'); renderAgentReport(); document.getElementById("agentReportModal").classList.remove("hidden"); }
-    function closeAgentReportModal() { document.getElementById("agentReportModal").classList.add("hidden"); }
-    function switchAgentReportTab(tab) {
-        currentReportTab = tab; let btnPharm = document.getElementById("btnTabPharm"); let btnDoc = document.getElementById("btnTabDoc"); let contPharm = document.getElementById("agentReportPharmContent"); let contDoc = document.getElementById("agentReportDocContent");
-        if(tab === 'pharm') { btnPharm.style.background = 'var(--primary)'; btnDoc.style.background = '#94a3b8'; contPharm.classList.remove('hidden'); contDoc.classList.add('hidden'); } 
-        else { btnDoc.style.background = 'var(--primary)'; btnPharm.style.background = '#94a3b8'; contDoc.classList.remove('hidden'); contPharm.classList.add('hidden'); }
-    }
-    function renderAgentReport() {
-        let selectedDate = document.getElementById("agentReportDate").value; let contPharm = document.getElementById("agentReportPharmContent"); let contDoc = document.getElementById("agentReportDocContent");
-        let filtered = visitReports.filter(r => r.agent === currentFullName && r.date === selectedDate);
-        let pharmReports = filtered.filter(r => !r.type.includes("Həkim")); let docReports = filtered.filter(r => r.type.includes("Həkim"));
-
-        if(pharmReports.length === 0) { contPharm.innerHTML = `<p style="text-align:center; color:#64748b; padding: 20px;">Bu tarix üçün aptek əməliyyatınız yoxdur.</p>`; } else {
-            let html = `<div class="table-container" style="border:none; margin-top:0; box-shadow: 0 2px 8px rgba(0,0,0,0.05);"><table class="data-table"><thead><tr><th>Saat</th><th>Aptek</th><th>Əməliyyat</th><th>Net ₼</th></tr></thead><tbody>`;
-            let myNetSum = 0;
-            pharmReports.forEach(r => { let net = r.netAmount || 0; if(!r.type.includes("Nisyə") && !r.type.includes("Əlavə Nisyə")) myNetSum += net; html += `<tr><td>${r.timeOnly}</td><td><b>${r.obj}</b><br><small style="color:#64748b">${r.drug} ${r.qty !== '-' ? '('+r.qty+')' : ''}</small></td><td>${r.type}</td><td style="color:#10b981; font-weight:bold;">${net>0 ? net+' ₼' : '-'}</td></tr>`; });
-            html += `</tbody></table></div>`;
-            if(selectedDate === getTodayDateString()) {
-                let myNisyeQty = 0, myNisyeAzn = 0;
-                for(let pName in pharmacyDebts) { if(pharmacyDebts[pName].agent === currentFullName) { for(let d in pharmacyDebts[pName].stock) { let q = pharmacyDebts[pName].stock[d] || 0; if(q > 0) { myNisyeQty += q; myNisyeAzn += (q * (productsDB[d] ? productsDB[d].price : 0)); } } } }
-                
-                let debtDisplay = (myNisyeQty > 0) ? `<br><span style="font-weight:normal; font-size:12px; color:#ef4444;">Ümumi Gözləyən Nisyəniz: <b>${myNisyeQty} qutu (${myNisyeAzn} ₼)</b></span>` : "";
-                html += `<div class="calc-total-box" style="margin-top:16px;">Gündəlik Nağd Saf Qazanc: <b style="color:#10b981; font-size:16px;">${myNetSum} ₼</b>${debtDisplay}</div>`;
-            } else { html += `<div class="calc-total-box" style="margin-top:16px;">Günlük Nağd Saf Qazanc: <b style="color:#10b981; font-size:16px;">${myNetSum} ₼</b></div>`; }
-            contPharm.innerHTML = html;
-        }
-
-        if(docReports.length === 0) { contDoc.innerHTML = `<p style="text-align:center; color:#64748b; padding: 20px;">Bu tarix üçün həkim ziyarətiniz yoxdur.</p>`; } else {
-            let html = `<div class="table-container" style="border:none; margin-top:0; box-shadow: 0 2px 8px rgba(0,0,0,0.05);"><table class="data-table"><thead><tr><th>Saat</th><th>Həkim</th><th>Nəticə</th></tr></thead><tbody>`;
-            docReports.forEach(r => { html += `<tr><td>${r.timeOnly}</td><td><b>${r.obj}</b></td><td>${r.type}</td></tr>`; });
-            html += `</tbody></table></div>`;
-            contDoc.innerHTML = html;
-        }
-    }
-
-    // Startup
     window.onload = function() {
         generateLoginOptions();
         renderPublicProducts();
