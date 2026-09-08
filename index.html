@@ -7,7 +7,7 @@
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary: #1b5e20;
@@ -125,7 +125,6 @@
         
         .cart-item-row { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 10px; margin-top: 6px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; font-weight: 600;}
         .calc-total-box { background: #f8fafc; border: 1px dashed #cbd5e1; padding: 12px; border-radius: 8px; margin-top: 12px; font-weight: bold; color: var(--text); text-align: right; font-size: 13px; line-height: 1.6; }
-        .integration-warning { max-width: 900px; margin: 12px auto 0; padding: 10px 14px; box-sizing: border-box; border: 1px solid #f59e0b; border-radius: 8px; background: #fffbeb; color: #92400e; font-size: 12px; font-weight: 700; }
     </style>
 </head>
 <body>
@@ -149,8 +148,6 @@
     <div class="logo-text" onclick="location.reload();">🌿 Golden Vit Pharma</div>
     <div class="sub-text" id="mobileProfileName">Səyyar Satış və Sahə Nəzarət Sistemi</div>
 </div>
-
-<div id="integrationWarning" class="integration-warning hidden" role="alert"></div>
 
 <div class="container" id="loginScreen">
     <div class="card" style="border-top: 4px solid var(--primary);">
@@ -945,94 +942,6 @@
     distributorList.forEach(dist => { distributorAdvances[dist] = { totalGiven: 0, spent: 0 }; });
     let predDB = [];
 
-    const CRM_STORAGE_KEY = "golden_vit_crm_data_v2";
-    const GEOFENCE_RADIUS_METERS = 50;
-    const MAX_GPS_ACCURACY_METERS = 50;
-    let storageWarningShown = false;
-
-    function refreshAgentCollections() {
-        aptekAgents = getAgentsByRole('aptek_agent');
-        docAgents = getAgentsByRole('doc_agent');
-        allAgents = [...aptekAgents, ...docAgents];
-
-        let productCount = Object.keys(productsDB).length;
-        allAgents.forEach(agent => {
-            if(!Array.isArray(agentStocks[agent])) agentStocks[agent] = new Array(productCount).fill(0);
-            while(agentStocks[agent].length < productCount) agentStocks[agent].push(0);
-            if(!(agent in agentBudgets)) agentBudgets[agent] = 0;
-            if(!Array.isArray(agentRegions[agent])) agentRegions[agent] = [];
-        });
-        distributorList.forEach(dist => {
-            if(!distributorAdvances[dist]) distributorAdvances[dist] = { totalGiven: 0, spent: 0 };
-        });
-    }
-
-    function loadPersistentData() {
-        try {
-            let raw = localStorage.getItem(CRM_STORAGE_KEY);
-            if(!raw) return;
-            let data = JSON.parse(raw);
-            if(!data || typeof data !== 'object') return;
-
-            if(data.productsDB && typeof data.productsDB === 'object') productsDB = data.productsDB;
-            if(data.userRoles && typeof data.userRoles === 'object') userRoles = data.userRoles;
-            if(data.agentRegions && typeof data.agentRegions === 'object') agentRegions = data.agentRegions;
-            if(data.agentStocks && typeof data.agentStocks === 'object') agentStocks = data.agentStocks;
-            if(data.agentBudgets && typeof data.agentBudgets === 'object') agentBudgets = data.agentBudgets;
-            if(data.pharmacyDebts && typeof data.pharmacyDebts === 'object') pharmacyDebts = data.pharmacyDebts;
-            if(Array.isArray(data.visitReports)) visitReports = data.visitReports;
-            if(Array.isArray(data.sampleLocations)) sampleLocations = data.sampleLocations;
-            if(Array.isArray(data.realizationDB)) realizationDB = data.realizationDB;
-            if(data.distributorAdvances && typeof data.distributorAdvances === 'object') distributorAdvances = data.distributorAdvances;
-            if(Array.isArray(data.predDB)) predDB = data.predDB;
-        } catch(error) {
-            console.error("Yadda saxlanmış CRM məlumatı oxunmadı:", error);
-        }
-        refreshAgentCollections();
-    }
-
-    function savePersistentData() {
-        try {
-            localStorage.setItem(CRM_STORAGE_KEY, JSON.stringify({
-                productsDB, userRoles, agentRegions, agentStocks, agentBudgets,
-                pharmacyDebts, visitReports, sampleLocations, realizationDB,
-                distributorAdvances, predDB
-            }));
-        } catch(error) {
-            console.error("CRM məlumatı yadda saxlanmadı:", error);
-            if(!storageWarningShown) {
-                storageWarningShown = true;
-                alert("Məlumat brauzerdə yadda saxlanmadı. Brauzerin yaddaş icazəsini yoxlayın.");
-            }
-        }
-    }
-
-    function normalizeLocationName(value) {
-        return String(value || '').trim().toLocaleLowerCase('az-AZ');
-    }
-
-    function findRegisteredLocation(name, type, agent = currentFullName) {
-        let normalizedName = normalizeLocationName(name);
-        return sampleLocations.find(location =>
-            normalizeLocationName(location.name) === normalizedName &&
-            location.type === type && location.agent === agent &&
-            Number.isFinite(Number(location.lat)) && Number.isFinite(Number(location.lon))
-        );
-    }
-
-    function checkExternalIntegrations() {
-        let missing = [];
-        if(typeof L === 'undefined') missing.push("xəritə (Leaflet)");
-        if(typeof Chart === 'undefined') missing.push("qrafiklər (Chart.js)");
-        let warning = document.getElementById('integrationWarning');
-        if(missing.length) {
-            warning.textContent = "İnteqrasiya yüklənmədi: " + missing.join(', ') + ". İnternet bağlantısını və CDN girişini yoxlayın.";
-            warning.classList.remove('hidden');
-        } else {
-            warning.classList.add('hidden');
-        }
-    }
-
     function getTodayDateString() {
         let d = new Date(); let month = '' + (d.getMonth() + 1), day = '' + d.getDate();
         if (month.length < 2) month = '0' + month; if (day.length < 2) day = '0' + day;
@@ -1044,45 +953,18 @@
     }
     
     function requestGPSAndCheckGeofence(targetLat, targetLon, onSuccessCallback, isStrict = true) {
-        if(!window.isSecureContext && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
-            alert("GPS yalnız HTTPS bağlantısında işləyir. Saytı təhlükəsiz HTTPS ünvanından açın.");
-            return;
-        }
-        if(!("geolocation" in navigator)) {
-            alert("Bu cihaz və ya brauzer GPS lokasiyasını dəstəkləmir.");
-            return;
-        }
-        if(isStrict && (!Number.isFinite(Number(targetLat)) || !Number.isFinite(Number(targetLon)))) {
-            alert("Obyektin qeydiyyat koordinatı düzgün deyil. Admin məlumatı yeniləməlidir.");
-            return;
-        }
-
-        navigator.geolocation.getCurrentPosition(function(pos) {
-            let latitude = pos.coords.latitude;
-            let longitude = pos.coords.longitude;
-            let accuracy = Number(pos.coords.accuracy) || 0;
-            let distance = null;
-
-            if(isStrict) {
-                if(accuracy > MAX_GPS_ACCURACY_METERS) {
-                    alert(`GPS dəqiqliyi zəifdir (${Math.round(accuracy)} metr). Açıq sahəyə keçib lokasiyanı yenidən yoxlayın.`);
-                    return;
-                }
-                distance = getDistanceInMeters(latitude, longitude, Number(targetLat), Number(targetLon));
-                if(distance > GEOFENCE_RADIUS_METERS) {
-                    alert(`📍 Ünvanda deyilsiniz. Obyektin 50 metr radiusunda olmalısınız.\nHazırkı məsafə: ${Math.round(distance)} metr.`);
-                    return;
-                }
-            }
-            onSuccessCallback(latitude, longitude, { accuracy, distance });
-        }, function(err) {
-            let reasons = {
-                1: "Məkan icazəsi verilməyib. Brauzer ayarlarından lokasiya icazəsini aktiv edin.",
-                2: "GPS mövqeyi müəyyən edilə bilmədi. GPS-i aktiv edib yenidən yoxlayın.",
-                3: "GPS sorğusunun vaxtı bitdi. Açıq sahəyə keçib yenidən cəhd edin."
-            };
-            alert(reasons[err.code] || "GPS məlumatı alına bilmədi. Məkan icazəsini yoxlayın.");
-        }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(function(pos) {
+                if(isStrict) {
+                    let dist = getDistanceInMeters(pos.coords.latitude, pos.coords.longitude, targetLat, targetLon);
+                    if(dist > 50) { alert(`🚨 GEOFENCE BLOKU 🚨\nSiz obyektdən çox uzaqdasınız! Məsafə: ${Math.round(dist)} metr.`); } 
+                    else { onSuccessCallback(pos.coords.latitude, pos.coords.longitude); }
+                } else { onSuccessCallback(pos.coords.latitude, pos.coords.longitude); }
+            }, function(err) { 
+                alert("GPS məlumatı alına bilmədi. Zəhmət olmasa cihazın məkan icazələrini yoxlayın."); 
+                onSuccessCallback(40.4093, 49.8671);
+            }, { enableHighAccuracy: true });
+        } else { alert("GPS dəstəklənmir."); onSuccessCallback(40.4093, 49.8671); }
     }
     
     function getDistanceInMeters(lat1, lon1, lat2, lon2) {
@@ -1164,10 +1046,11 @@
         let remember = document.getElementById("rememberMe") ? document.getElementById("rememberMe").checked : false;
         if(remember) {
             localStorage.setItem("crm_user_val", val);
+            localStorage.setItem("crm_pass", pass);
         } else {
             localStorage.removeItem("crm_user_val");
+            localStorage.removeItem("crm_pass");
         }
-        localStorage.removeItem("crm_pass");
 
         currentUsername = val; currentFullName = uInfo.fullName; currentRole = uInfo.role;
         document.getElementById("loginScreen").classList.add("hidden");
@@ -1240,7 +1123,6 @@
         if(!dist || dist==='all' || amt <= 0) return;
         
         distributorAdvances[dist].totalGiven += amt;
-        savePersistentData();
         alert(`${dist} üçün ${amt} AZN avans əlavə edildi!`);
         updateDistAdvanceTable();
     }
@@ -1251,7 +1133,6 @@
         if(dist === "all" || amt <= 0) { alert("Xahiş olunur əvvəlcə filterdən tək bir region seçin və məbləğ yazın."); return; }
         
         distributorAdvances[dist].spent += amt;
-        savePersistentData();
         alert(`Hesabat: ${dist} tərəfindən həkimlərə ${amt} AZN xərcləndi.`);
         document.getElementById("realizeSpentAdv").value = "";
         updateDistAdvanceTable();
@@ -1296,7 +1177,6 @@
             compPrice: compPrice, distBonus: distBonus,
             directSold: 0, netSold: 0 
         });
-        savePersistentData();
         
         alert(`Hədəf təyin edildi!\n${ag} | ${drug}\nŞirkət Qazancı (1qut): ${compPrice.toFixed(1)} ₼ | Dist. Payı: ${distBonus.toFixed(1)} ₼`);
         renderRealizationTable();
@@ -1364,7 +1244,6 @@
         if(!r) return;
         r.directSold = parseInt(document.getElementById("rel_dir_"+id).value) || 0;
         r.netSold = parseInt(document.getElementById("rel_net_"+id).value) || 0;
-        savePersistentData();
         alert("Satışlar açota işləndi, yekun hesablandı!");
         renderRealizationTable();
     }
@@ -1440,7 +1319,7 @@
         }
         
         if(chartDistPerf) chartDistPerf.destroy();
-        if(typeof Chart !== 'undefined') chartDistPerf = new Chart(document.getElementById('distPerfChart'), { 
+        chartDistPerf = new Chart(document.getElementById('distPerfChart'), { 
             type: 'bar', 
             data: { 
                 labels: labels, 
@@ -1510,7 +1389,7 @@
 
         let sortedDates = Object.keys(datesMap).sort(); let trendData = sortedDates.map(d => datesMap[d]);
         if(chartMastTrend) chartMastTrend.destroy();
-        if(typeof Chart !== 'undefined') chartMastTrend = new Chart(document.getElementById('mastTrendChart'), { type: 'line', data: { labels: sortedDates.length?sortedDates:['Məlumat yoxdur'], datasets: [{ label: 'Net Satış', data: trendData.length?trendData:[0], borderColor: '#10b981', fill: true, backgroundColor: 'rgba(16, 185, 129, 0.2)' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
+        chartMastTrend = new Chart(document.getElementById('mastTrendChart'), { type: 'line', data: { labels: sortedDates.length?sortedDates:['Məlumat yoxdur'], datasets: [{ label: 'Net Satış', data: trendData.length?trendData:[0], borderColor: '#10b981', fill: true, backgroundColor: 'rgba(16, 185, 129, 0.2)' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
 
         let pListHtml = ""; let maxQty = Math.max(...Object.values(productQtyMap), 1);
         Object.keys(productQtyMap).sort((a,b)=>productQtyMap[b]-productQtyMap[a]).slice(0,5).forEach(p => { pListHtml += `<div class="progress-item"><div class="progress-info"><span>${p}</span><span>${productQtyMap[p]} qut</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${(productQtyMap[p]/maxQty)*100}%"></div></div></div>`; });
@@ -1524,7 +1403,7 @@
         });
         document.getElementById("mastAgentTableBody").innerHTML = tbodyHtml;
         if(chartMastAgent) chartMastAgent.destroy();
-        if(typeof Chart !== 'undefined') chartMastAgent = new Chart(document.getElementById('mastAgentChart'), { type: 'bar', data: { labels: aLabels, datasets: [{ label: 'Net Satış', data: aData, backgroundColor: '#f59e0b', borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
+        chartMastAgent = new Chart(document.getElementById('mastAgentChart'), { type: 'bar', data: { labels: aLabels, datasets: [{ label: 'Net Satış', data: aData, backgroundColor: '#f59e0b', borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
     }
 
     function renderPredManagerTable() {
@@ -1565,22 +1444,16 @@
         let amt = parseFloat(document.getElementById("predGiven_"+id).value);
         if(!amt || amt <= 0) { alert("Məbləğ daxil edin!"); return; }
         
-        requestGPSAndCheckGeofence(p.lat, p.lon, function(lat, lon, gps) {
+        requestGPSAndCheckGeofence(p.lat, p.lon, function() {
             p.givenAmt = amt; p.status = 'Ödənildi';
-            p.confirmedLat = lat; p.confirmedLon = lon; p.confirmedAccuracy = gps.accuracy; p.confirmedAt = new Date().toISOString();
-            savePersistentData();
             alert("Ödəniş təsdiqləndi!"); renderPredManagerTable();
-        }); 
+        }, false); 
     }
 
     function initAdminMap() {
-        if(typeof L === 'undefined') return;
         if(adminMap) adminMap.remove();
         adminMap = L.map('adminMap').setView([40.4093, 49.8671], 11);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(adminMap);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(adminMap);
         adminMarkersGroup = L.featureGroup().addTo(adminMap);
     }
 
@@ -1595,16 +1468,7 @@
 
         if(currentRole === 'pred' && t === 'all') t = 'Həkim';
 
-        let visitedKeys = new Set(
-            visitReports
-                .filter(report => !d || report.date === d)
-                .map(report => `${report.agent}|${normalizeLocationName(report.obj)}`)
-        );
-        let locationsToShow = d
-            ? sampleLocations.filter(loc => visitedKeys.has(`${loc.agent}|${normalizeLocationName(loc.name)}`))
-            : sampleLocations;
-
-        locationsToShow.forEach(loc => {
+        sampleLocations.forEach(loc => {
             if(t !== 'all' && loc.type !== t) return;
             if(currentRole === 'pred' && !docAgents.includes(loc.agent)) return;
 
@@ -1619,11 +1483,7 @@
                 </div>
             `;
         });
-        if(bounds.length > 0) {
-            adminMap.fitBounds(bounds, {padding: [30,30]});
-        } else {
-            listContainer.innerHTML = `<div style="padding:10px; text-align:center; color:#64748b; font-size:12px;">Seçilmiş tarix üçün ziyarət tapılmadı.</div>`;
-        }
+        if(bounds.length > 0) adminMap.fitBounds(bounds, {padding: [30,30]});
     }
 
     function toggleVisitFields() {
@@ -1669,84 +1529,50 @@
         let t = document.getElementById("visitType").value;
         let r = document.getElementById("regionSelect").value;
         let d = getTodayDateString(); let time = new Date().toLocaleTimeString('az-AZ', {hour12:false});
-
-        let objectName, objectType, clinic = "", contactPhone = "", managerName = "", agreement = "", requestedAmount = 0;
-        if(t === 'hekim') {
-            objectName = document.getElementById("doctorName").value.trim();
-            objectType = "Həkim";
-            clinic = document.getElementById("clinicName").value.trim();
-            contactPhone = document.getElementById("doctorPhone").value.trim();
-            agreement = document.getElementById("doctorAgreement").value;
-            requestedAmount = parseFloat(document.getElementById("docRequestedAmt") ? document.getElementById("docRequestedAmt").value : 0) || 0;
-            if(!objectName || !clinic) { alert("Həkim və klinika adını daxil edin!"); return; }
-        } else {
-            objectName = document.getElementById("newPharmacyName").value.trim();
-            objectType = "Aptek";
-            managerName = document.getElementById("newManagerName").value.trim();
-            contactPhone = document.getElementById("newManagerPhone").value.trim();
-            if(!objectName || activeCart.length === 0) { alert("Doldurun və səbətə mal əlavə edin!"); return; }
-            let existingPharmacyKey = Object.keys(pharmacyDebts).find(name =>
-                normalizeLocationName(name) === normalizeLocationName(objectName) && pharmacyDebts[name].agent === currentFullName
-            );
-            if(existingPharmacyKey) {
-                alert("Bu aptek artıq qeydiyyatdadır. Təkrar əməliyyat üçün yuxarıdakı ‘Aptekdə Nisyə / Satış Əməliyyatı’ bölməsindən apteki seçin.");
-                return;
-            }
-        }
-
-        let registeredLocation = findRegisteredLocation(objectName, objectType);
-        let strictCheck = Boolean(registeredLocation);
-        let targetLat = registeredLocation ? registeredLocation.lat : 0;
-        let targetLon = registeredLocation ? registeredLocation.lon : 0;
-
-        requestGPSAndCheckGeofence(targetLat, targetLon, function(lat, lon, gps) {
-            let gpsInfo = { lat, lon, accuracy: gps.accuracy, distanceMeters: gps.distance };
+        
+        requestGPSAndCheckGeofence(0, 0, function(lat, lon) {
             if(t === 'hekim') {
-                visitReports.push({ date: d, timeOnly: time, agent: currentFullName, region: r, obj: objectName, clinic: clinic, phone: contactPhone, type: `Həkim (${agreement})`, drug: "-", qty: "-", netAmount: 0, ...gpsInfo });
-                if(agreement === 'Razılaşdı' && requestedAmount > 0) {
-                    let anchorLat = registeredLocation ? registeredLocation.lat : lat;
-                    let anchorLon = registeredLocation ? registeredLocation.lon : lon;
-                    predDB.push({ id: Date.now(), date: d, agent: currentFullName, doctor: objectName, clinic: clinic, requestedAmt: requestedAmount, givenAmt: 0, status: 'Gözləyir', lat: anchorLat, lon: anchorLon });
+                let doc = document.getElementById("doctorName").value.trim();
+                let clin = document.getElementById("clinicName").value.trim();
+                let agr = document.getElementById("doctorAgreement").value;
+                let reqA = parseFloat(document.getElementById("docRequestedAmt") ? document.getElementById("docRequestedAmt").value : 0) || 0;
+                if(!doc || !clin) { alert("Xanaları doldurun!"); return; }
+                
+                visitReports.push({ date: d, timeOnly: time, agent: currentFullName, region: r, obj: doc, type: `Həkim (${agr})`, drug: "-", qty: "-", netAmount: 0 });
+                if(agr === 'Razılaşdı' && reqA > 0) {
+                    predDB.push({ id: Date.now(), date: d, agent: currentFullName, doctor: doc, clinic: clin, requestedAmt: reqA, givenAmt: 0, status: 'Gözləyir', lat: lat, lon: lon });
+                    alert("Ziyarət qeydə alındı. Pred tələbi rəhbərə göndərildi.");
+                } else { alert("Ziyarət qeydə alındı."); }
+                
+                if(!sampleLocations.find(l => l.name === doc)) {
+                    sampleLocations.push({ name: doc, clinic: clin, region: r, agent: currentFullName, type: "Həkim", lat: lat, lon: lon });
+                    filterAgentMapLocations();
                 }
-
-                if(!registeredLocation) {
-                    registeredLocation = { name: objectName, clinic: clinic, phone: contactPhone, region: r, agent: currentFullName, type: "Həkim", lat: lat, lon: lon, registeredDate: d };
-                    sampleLocations.push(registeredLocation);
-                }
-                registeredLocation.lastVisitedAt = new Date().toISOString();
-                registeredLocation.lastDistanceMeters = gps.distance;
-                savePersistentData();
-                filterAgentMapLocations();
-                document.getElementById("doctorName").value = "";
-                document.getElementById("clinicName").value = "";
-                document.getElementById("doctorPhone").value = "";
-                alert(agreement === 'Razılaşdı' && requestedAmount > 0 ? "Ziyarət qeydə alındı. Pred tələbi rəhbərə göndərildi." : "Ziyarət qeydə alındı.");
+                document.getElementById("doctorName").value = ""; document.getElementById("clinicName").value = "";
+                
             } else {
+                let apt = document.getElementById("newPharmacyName").value.trim();
+                if(!apt || activeCart.length === 0) { alert("Doldurun və səbətə mal əlavə edin!"); return; }
+                
                 let nStock = {};
                 activeCart.forEach(i => {
-                    let idx = Object.keys(productsDB).indexOf(i.drug);
-                    if(idx < 0 || !agentStocks[currentFullName]) return;
-                    agentStocks[currentFullName][idx] -= i.qty;
-                    if(i.mode === 'nisye') nStock[i.drug] = (nStock[i.drug]||0) + i.qty;
-                    let rptType = i.mode === 'nisye' ? "Yeni Aptek (Nisyə)" : "Yeni Aptek (Nağd)";
-                    let rptNet = i.mode === 'nisye' ? 0 : i.net;
-                    visitReports.push({ date: d, timeOnly: time, agent: currentFullName, region: r, obj: objectName, type: rptType, drug: i.drug, qty: i.qty, totalAmount: i.total, bonusAmount: i.bonus, netAmount: rptNet, ...gpsInfo });
+                    try {
+                        let idx = Object.keys(productsDB).indexOf(i.drug);
+                        agentStocks[currentFullName][idx] -= i.qty;
+                        if(i.mode === 'nisye') nStock[i.drug] = (nStock[i.drug]||0) + i.qty;
+                        let rptType = i.mode === 'nisye' ? "Yeni Aptek (Nisyə)" : "Yeni Aptek (Nağd)";
+                        let rptNet = i.mode === 'nisye' ? 0 : i.net;
+                        visitReports.push({ date: d, timeOnly: time, agent: currentFullName, region: r, obj: apt, type: rptType, drug: i.drug, qty: i.qty, netAmount: rptNet });
+                    } catch(e) { console.error(e); }
                 });
-                pharmacyDebts[objectName] = { region: r, agent: currentFullName, managerName: managerName, phone: contactPhone, lat: lat, lon: lon, stock: nStock, registeredDate: d, lastVisitedAt: new Date().toISOString() };
-                sampleLocations.push({ name: objectName, region: r, agent: currentFullName, managerName: managerName, phone: contactPhone, type: "Aptek", lat: lat, lon: lon, registeredDate: d, lastVisitedAt: new Date().toISOString() });
-
-                document.getElementById("newPharmacyName").value = "";
-                document.getElementById("newManagerName").value = "";
-                document.getElementById("newManagerPhone").value = "";
-                activeCart = [];
-                renderNewCart();
-                savePersistentData();
-                updateAgentStockDisplay();
-                populateStockPharmacies();
+                pharmacyDebts[apt] = { region: r, agent: currentFullName, lat: lat, lon: lon, stock: nStock };
+                sampleLocations.push({ name: apt, region: r, agent: currentFullName, type: "Aptek", lat: lat, lon: lon });
+                
+                document.getElementById("newPharmacyName").value = ""; activeCart = []; renderNewCart();
+                updateAgentStockDisplay(); populateStockPharmacies(); alert("Aptek qeydə alındı!");
                 filterAgentMapLocations();
-                alert("Aptek qeydə alındı!");
             }
-        }, strictCheck);
+        }, false);
     }
     
     function executePharmacyStockOp() {
@@ -1761,10 +1587,8 @@
 
         let pData = pharmacyDebts[pName];
         let pInfo = productsDB[drug];
-        if(!pData || !pInfo) { alert("Aptek və ya məhsul məlumatı tapılmadı. Siyahını yeniləyib təkrar cəhd edin."); return; }
 
-        requestGPSAndCheckGeofence(pData.lat, pData.lon, function(lat, lon, gps) {
-            let gpsInfo = { lat, lon, accuracy: gps.accuracy, distanceMeters: gps.distance };
+        requestGPSAndCheckGeofence(pData.lat, pData.lon, function() {
             if(opType === 'nagdlashdirma_serbest' || opType === 'nagdlashdirma_resept') {
                 let currentDebt = pData.stock[drug] || 0;
                 if(currentDebt < qty) { alert(`Bu aptekdə cəmi ${currentDebt} qutu ${drug} nisyə var!`); return; }
@@ -1775,7 +1599,7 @@
                 let netAmount = totalAmount - bonusAmount;
                 let opLabel = (opType === 'nagdlashdirma_serbest') ? "Nağdlaşdırma (Bonuslu)" : "Nağdlaşdırma (Bonussuz)";
 
-                visitReports.push({ date: selectedDate, timeOnly: timeNow, agent: currentFullName, region: pData.region, obj: pName, type: opLabel, drug: drug, qty: qty, totalAmount: totalAmount, bonusAmount: bonusAmount, netAmount: netAmount, ...gpsInfo });
+                visitReports.push({ date: selectedDate, timeOnly: timeNow, agent: currentFullName, region: pData.region, obj: pName, type: opLabel, drug: drug, qty: qty, totalAmount: totalAmount, bonusAmount: bonusAmount, netAmount: netAmount });
                 alert(`Uğurlu Nağdlaşdırma!\nSaf Net Qazanc: ${netAmount}₼`);
             } else {
                 let keys = Object.keys(productsDB);
@@ -1784,29 +1608,17 @@
                 agentStocks[currentFullName][idx] -= qty;
                 pData.stock[drug] = (pData.stock[drug] || 0) + qty;
                 
-                visitReports.push({ date: selectedDate, timeOnly: timeNow, agent: currentFullName, region: pData.region, obj: pName, type: "Əlavə Nisyə", drug: drug, qty: qty, totalAmount: qty * pInfo.price, bonusAmount: 0, netAmount: 0, ...gpsInfo });
+                visitReports.push({ date: selectedDate, timeOnly: timeNow, agent: currentFullName, region: pData.region, obj: pName, type: "Əlavə Nisyə", drug: drug, qty: qty, totalAmount: qty * pInfo.price, bonusAmount: 0, netAmount: 0 });
                 alert(`Uğurlu Əməliyyat!\n${qty} qutu ${drug} nisyə verildi.`);
             }
-            pData.lastVisitedAt = new Date().toISOString();
-            pData.lastDistanceMeters = gps.distance;
-            let mapLocation = findRegisteredLocation(pName, "Aptek");
-            if(mapLocation) {
-                mapLocation.lastVisitedAt = pData.lastVisitedAt;
-                mapLocation.lastDistanceMeters = gps.distance;
-            }
-            savePersistentData();
             updateAgentStockDisplay(); showPharmacyStockDetails();
         });
     }
 
     function initAgentLocalMap() {
-        if(typeof L === 'undefined') return;
         if(agentLocalMap) { agentLocalMap.remove(); }
         agentLocalMap = L.map('agentLocalMap').setView([40.4093, 49.8671], 12);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(agentLocalMap);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(agentLocalMap);
         agentLocalMarkersGroup = L.featureGroup().addTo(agentLocalMap);
         filterAgentMapLocations();
     }
@@ -1847,14 +1659,10 @@
     }
 
     function openAptekSelectMap() {
-        if(typeof L === 'undefined') { alert("Xəritə inteqrasiyası yüklənməyib. İnternet bağlantısını yoxlayın."); return; }
         document.getElementById("aptekMapModal").classList.remove("hidden");
         if(!aptekSelectMap) {
             aptekSelectMap = L.map('aptekSelectMap').setView([40.4093, 49.8671], 12);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(aptekSelectMap);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(aptekSelectMap);
         }
         setTimeout(() => {
             aptekSelectMap.invalidateSize();
@@ -2052,10 +1860,6 @@
         let tbody = document.getElementById("routeTableBody"); if(!tbody) return;
         tbody.innerHTML = "";
         let rep = visitReports.filter(r => r.date === dt && (ag === 'all' || r.agent === ag));
-        let uniqueObjects = new Set(rep.map(r => `${r.agent}|${normalizeLocationName(r.obj)}`)).size;
-        let verifiedVisits = rep.filter(r => r.distanceMeters !== null && r.distanceMeters !== undefined).length;
-        let summary = document.getElementById("routeSummaryBox");
-        if(summary) summary.innerHTML = `<div class="stat-box"><div class="stat-num">${rep.length}</div><div class="stat-label">Əməliyyat</div></div><div class="stat-box"><div class="stat-num">${uniqueObjects}</div><div class="stat-label">Unikal obyekt</div></div><div class="stat-box"><div class="stat-num">${verifiedVisits}</div><div class="stat-label">50m GPS yoxlanışı</div></div>`;
         if(rep.length===0) { tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Məlumat yoxdur.</td></tr>`; return; }
         rep.forEach(r => { tbody.innerHTML += `<tr><td>${r.date}<br><small>${r.timeOnly}</small></td><td>${r.agent}</td><td>${r.region}</td><td><b>${r.obj}</b></td><td>${r.type} ${r.drug!=='-'?r.drug:''}</td></tr>`; });
     }
@@ -2090,10 +1894,8 @@
         let qty = parseInt(document.getElementById("transferQty").value) || 0;
         let keys = Object.keys(productsDB);
         let idx = keys.indexOf(drugName);
-        if(qty <= 0) { alert("Miqdar 0-dan böyük olmalıdır!"); return; }
         if(idx !== -1 && agentStocks[targetAgent]) {
             agentStocks[targetAgent][idx] += qty;
-            savePersistentData();
             alert(`Uğurlu Təyinat! ${targetAgent} işçisinə ${qty} qutu ${drugName} əlavə olundu.`);
             renderAgentStockTable();
         }
@@ -2112,7 +1914,6 @@
         let amt = parseFloat(document.getElementById("budgetAmount").value) || 0;
         if(ag === "all" || amt <= 0) return;
         agentBudgets[ag] = (agentBudgets[ag] || 0) + amt;
-        savePersistentData();
         alert(`${ag} balansına ${amt} ₼ əlavə edildi!`);
         updateAdminAgentBudgets();
     }
@@ -2144,7 +1945,6 @@
         productsDB[name].price = parseFloat(document.getElementById('editProdPrice').value) || 0;
         productsDB[name].bonus = parseFloat(document.getElementById('editProdBonus').value) || 0;
         productsDB[name].desc = document.getElementById('editProdDesc').value.replace(/\n/g, '<br>');
-        savePersistentData();
         alert("Məhsul məlumatları yeniləndi!");
         cancelProductEdit(); renderSettingsProductList(); initDropdowns(); renderPublicProducts();
         if(!document.getElementById('tab-transfer').classList.contains('hidden')) renderAgentStockTable();
@@ -2157,7 +1957,7 @@
         productsDB[name] = { price: parseFloat(document.getElementById("newProdPrice").value)||0, bonus: parseFloat(document.getElementById("newProdBonus").value)||0, desc: document.getElementById("newProdDesc").value.trim().replace(/\n/g, '<br>') };
         
         allAgents.forEach(ag => { if(agentStocks[ag]) agentStocks[ag].push(0); });
-        savePersistentData();
+        
         alert("Yeni Məhsul Əlavə Edildi!");
         document.getElementById("newProdName").value = ""; document.getElementById("newProdPrice").value = ""; document.getElementById("newProdBonus").value = ""; document.getElementById("newProdDesc").value = "";
         initDropdowns(); renderPublicProducts(); renderSettingsProductList();
@@ -2199,7 +1999,7 @@
         } else { 
             userRoles[username].pass = newPass; 
         }
-        savePersistentData();
+        
         alert("İşçi məlumatları yeniləndi!");
         generateLoginOptions(); loadAgentDataForEdit();
     }
@@ -2210,7 +2010,7 @@
         let pass = document.getElementById("newUserPass").value.trim();
         let role = document.getElementById("newUserRole").value;
         
-        if(!uName || !fName || !pass) { alert("Bütün xanaları doldurun!"); return; }
+        if(!fName || !pass) { alert("Bütün xanaları doldurun!"); return; }
         if(userRoles[uName]) { alert("Bu istifadəçi artıq mövcuddur!"); return; }
         
         userRoles[uName] = { fullName: fName, role: role, pass: pass };
@@ -2225,7 +2025,7 @@
             docAgents = getAgentsByRole('doc_agent');
             allAgents = [...aptekAgents, ...docAgents];
         }
-        savePersistentData();
+        
         alert("Yeni istifadəçi uğurla əlavə edildi!");
         document.getElementById("newUserUsername").value = "";
         document.getElementById("newFullName").value = "";
@@ -2311,20 +2111,18 @@
     
     function saveBossPass() {
         let np = document.getElementById("bossNewPass").value;
-        if(np) { userRoles[currentUsername].pass = np; savePersistentData(); alert("Şifrə dəyişdirildi!"); document.getElementById("bossNewPass").value = ""; }
+        if(np) { userRoles[currentUsername].pass = np; alert("Şifrə dəyişdirildi!"); document.getElementById("bossNewPass").value = ""; }
     }
 
     window.onload = function() {
-        loadPersistentData();
-        checkExternalIntegrations();
         generateLoginOptions();
         renderPublicProducts();
-        localStorage.removeItem("crm_pass");
-        let savedUser = localStorage.getItem("crm_user_val");
-        if(savedUser) { 
+        let savedUser = localStorage.getItem("crm_user_val"); let savedPass = localStorage.getItem("crm_pass");
+        if(savedUser && savedPass) { 
             let sel = document.getElementById("userSelect");
             if(sel.querySelector(`option[value="${savedUser}"]`)) {
                 sel.value = savedUser; 
+                document.getElementById("loginPassword").value = savedPass; 
                 document.getElementById("rememberMe").checked = true; 
             }
         }
